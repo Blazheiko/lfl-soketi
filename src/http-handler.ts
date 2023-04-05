@@ -40,6 +40,19 @@ export class HttpHandler {
         });
     }
 
+    lflTest(res: HttpResponse) {
+        this.attachMiddleware(res, [
+            this.corkMiddleware,
+            this.corsMiddleware,
+        ]).then(res => {
+            if (this.server.closing) {
+                this.serverErrorResponse(res, 'LflTest The server is closing. Choose another server. :)');
+            } else {
+                this.send(res, 'LFL Test');
+            }
+        });
+    }
+
     acceptTraffic(res: HttpResponse) {
         this.attachMiddleware(res, [
             this.corsMiddleware,

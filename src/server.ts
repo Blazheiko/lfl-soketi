@@ -653,6 +653,7 @@ export class Server {
         return new Promise(resolve => {
             server.get(this.url('/'), (res, req) => this.httpHandler.healthCheck(res));
             server.get(this.url('/ready'), (res, req) => this.httpHandler.ready(res));
+            server.get(this.url('/lfl-test'), (res, req) => this.httpHandler.lflTest(res));
 
             if (this.canProcessRequests()) {
                 server.get(this.url('/accept-traffic'), (res, req) => this.httpHandler.acceptTraffic(res));
