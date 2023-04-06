@@ -64,9 +64,9 @@ export class Server {
             array: {
                 apps: [
                     {
-                        id: 'app-id',
-                        key: 'app-key',
-                        secret: 'app-secret',
+                        id: '1145602',
+                        key: '7b5dfd4b6b7705303974',
+                        secret: 'fe7e4e2b3cd616e6a85e',
                         maxConnections: -1,
                         enableClientMessages: false,
                         enabled: true,
@@ -167,7 +167,7 @@ export class Server {
             min: 0,
             max: 7,
         },
-        debug: false,
+        debug: true,
         eventLimits: {
             maxChannelsAtOnce: 100,
             maxNameLength: 200,

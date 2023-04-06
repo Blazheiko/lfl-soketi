@@ -271,6 +271,9 @@ export class WsHandler {
      * Mutate the upgrade request.
      */
     handleUpgrade(res: HttpResponse, req: HttpRequest, context): any {
+        Log.info('handleUpgrade');
+        Log.info({req});
+        Log.info({headers: req.getHeader('user-agent')});
         res.upgrade(
             {
                 ip: ab2str(res.getRemoteAddressAsText()),
