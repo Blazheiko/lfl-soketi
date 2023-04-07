@@ -29,10 +29,10 @@ export class Server {
      */
     public options: Options = {
         adapter: {
-            driver: 'local',
+            driver: 'redis',
             redis: {
                 requestsTimeout: 5_000,
-                prefix: '',
+                prefix: 'soketi',
                 redisPubOptions: {
                     //
                 },
@@ -56,7 +56,7 @@ export class Server {
             },
         },
         appManager: {
-            driver: 'array',
+            driver: 'postgres',
             cache: {
                 enabled: false,
                 ttl: -1,
@@ -89,7 +89,7 @@ export class Server {
             },
             postgres: {
                 table: 'apps',
-                version: '13.3',
+                version: '9.6',
             },
         },
         cache: {
@@ -143,19 +143,19 @@ export class Server {
                 database: 'main',
             },
             postgres: {
-                host: '127.0.0.1',
+                host: '172.31.32.6',
                 port: 5432,
                 user: 'postgres',
                 password: 'password',
                 database: 'main',
             },
             redis: {
-                host: '127.0.0.1',
-                port: 6379,
+                host: '172.31.32.6',
+                port: 10603,
                 db: 0,
                 username: null,
-                password: null,
-                keyPrefix: '',
+                password: 'redis-protected2020',
+                keyPrefix: 'soketi',
                 sentinels: null,
                 sentinelPassword: null,
                 name: 'mymaster',
@@ -231,8 +231,10 @@ export class Server {
         },
         shutdownGracePeriod: 3_000,
         ssl: {
-            certPath: `${__dirname}/127.0.0.1.pem`,
-            keyPath: `${__dirname}/127.0.0.1-key.pem`,
+            // certPath: `${__dirname}/127.0.0.1.pem`,
+            // keyPath: `${__dirname}/127.0.0.1-key.pem`,
+            certPath: '',
+            keyPath: '',
             passphrase: '',
             caPath: '',
         },

@@ -64,11 +64,11 @@ export class HttpHandler {
             } else {
                 this.server.adapter.getSockets(appId, true).then(localSockets => {
                     Log.info({localSockets});
-                    const sockets = [...localSockets].map(item => ({
-                        [item[0]]: {
-                            ip: item[1].ip,
-                            userAgent: item[1].userAgent,
-                            presence: [ ...item[1].presence ]
+                    const sockets = [...localSockets].map(([wsId, ws]) => ({
+                        [wsId]: {
+                            ip: ws.ip,
+                            userAgent: ws.userAgent,
+                            presence: [ ...ws.presence ]
                         }
                     }))
                     const result = {
@@ -78,9 +78,7 @@ export class HttpHandler {
 
                     this.server.adapter.getChannels(appId, true).then(localChannels => {
                         Log.info({localChannels})
-                        // @ts-ignore
-                        const channels = [...localChannels].map(item => ({[item[0]]: Array.from(item[1])} ))
-                        result.channels = channels
+                        result.channels = [...localChannels].map(([channel, wsIds]) => ({[channel]: Array.from(wsIds)} ))
 
                         this.send(res, JSON.stringify(result));
                     })
