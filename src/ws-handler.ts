@@ -78,6 +78,9 @@ export class WsHandler {
         ws.id = this.generateSocketId();
         ws.subscribedChannels = new Set();
         ws.presence = new Map<string, PresenceMemberInfo>();
+        const userAgent = ws.getUpgradeReq().headers['user-agent'];
+        Log.info({userAgent})
+        ws.userAgent = userAgent;
 
         if (this.server.closing) {
             ws.sendJson({
