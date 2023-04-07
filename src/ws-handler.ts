@@ -78,9 +78,9 @@ export class WsHandler {
         ws.id = this.generateSocketId();
         ws.subscribedChannels = new Set();
         ws.presence = new Map<string, PresenceMemberInfo>();
-        const userData = ws.getUserData() //headers['user-agent'];
-        Log.info({userData})
-        ws.myUserData = userData;
+        // const userData = ws.getUserData() //headers['user-agent'];
+        // Log.info({userData})
+        // ws.myUserData = userData;
 
         if (this.server.closing) {
             ws.sendJson({
