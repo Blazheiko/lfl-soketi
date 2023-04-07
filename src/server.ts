@@ -654,6 +654,7 @@ export class Server {
             server.get(this.url('/'), (res, req) => this.httpHandler.healthCheck(res));
             server.get(this.url('/ready'), (res, req) => this.httpHandler.ready(res));
             server.get(this.url('/lfl-test'), (res, req) => this.httpHandler.lflTest(res));
+            server.get(this.url('/service/:appId/get-info-all-ws'), (res, req) => this.httpHandler.getInfoAllWS(res, req.getParameter(0)));
 
             if (this.canProcessRequests()) {
                 server.get(this.url('/accept-traffic'), (res, req) => this.httpHandler.acceptTraffic(res));

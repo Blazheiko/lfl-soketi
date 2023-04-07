@@ -5,6 +5,7 @@ import { PusherApiMessage } from './message';
 import { Server } from './server';
 import { Utils } from './utils';
 import { Log } from './log';
+import {RequestType} from "./adapters";
 
 const v8 = require('v8');
 
@@ -49,6 +50,42 @@ export class HttpHandler {
                 this.serverErrorResponse(res, 'LflTest The server is closing. Choose another server. :)');
             } else {
                 this.send(res, 'LFL Test');
+            }
+        });
+    }
+
+    getInfoAllWS(res: HttpResponse,appId: string) {
+        this.attachMiddleware(res, [
+            this.corkMiddleware,
+            this.corsMiddleware,
+        ]).then(res => {
+            if (this.server.closing) {
+                this.serverErrorResponse(res, 'LflTest The server is closing. Choose another server. :)');
+            } else {
+                this.server.adapter.getSockets(appId, true).then(localSockets => {
+                    Log.info({localSockets});
+                    const sockets = [...localSockets].map(item => ({
+                        [item[0]]: {
+                            ip: item[1].ip,
+                            userAgent: item[1].userAgent,
+                            presence: [ ...item[1].presence ]
+                        }
+                    }))
+                    const result = {
+                        channels: [],
+                        sockets
+                    }
+
+                    this.server.adapter.getChannels(appId, true).then(localChannels => {
+                        Log.info({localChannels})
+                        // @ts-ignore
+                        const channels = [...localChannels].map(item => ({[item[0]]: Array.from(item[1])} ))
+                        result.channels = channels
+
+                        this.send(res, JSON.stringify(result));
+                    })
+
+                });
             }
         });
     }

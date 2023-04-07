@@ -276,12 +276,15 @@ export class WsHandler {
     handleUpgrade(res: HttpResponse, req: HttpRequest, context): any {
         Log.info('handleUpgrade');
         Log.info({req});
-        Log.info({headers: req.getHeader('user-agent')});
+
+        const userAgent = req.getHeader('user-agent');
+        Log.info({userAgent});
         res.upgrade(
             {
                 ip: ab2str(res.getRemoteAddressAsText()),
                 ip2: ab2str(res.getProxiedRemoteAddressAsText()),
                 appKey: req.getParameter(0),
+                userAgent
             },
             req.getHeader('sec-websocket-key'),
             req.getHeader('sec-websocket-protocol'),
