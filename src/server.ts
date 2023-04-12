@@ -29,7 +29,7 @@ export class Server {
      */
     public options: Options = {
         adapter: {
-            driver: 'redis',
+            driver: 'local',//'redis',
             redis: {
                 requestsTimeout: 5_000,
                 prefix: 'soketi',
@@ -56,7 +56,7 @@ export class Server {
             },
         },
         appManager: {
-            driver: 'postgres',
+            driver: 'array',//'postgres',
             cache: {
                 enabled: false,
                 ttl: -1,
@@ -231,10 +231,10 @@ export class Server {
         },
         shutdownGracePeriod: 3_000,
         ssl: {
-            // certPath: `${__dirname}/127.0.0.1.pem`,
-            // keyPath: `${__dirname}/127.0.0.1-key.pem`,
-            certPath: '',
-            keyPath: '',
+            certPath: `${__dirname}/127.0.0.1.pem`,
+            keyPath: `${__dirname}/127.0.0.1-key.pem`,
+            // certPath: '',
+            // keyPath: '',
             passphrase: '',
             caPath: '',
         },

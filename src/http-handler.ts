@@ -64,24 +64,26 @@ export class HttpHandler {
             } else {
                 this.server.adapter.getSockets(appId, true).then(localSockets => {
                     Log.info({localSockets});
-                    const sockets = [...localSockets].map(([wsId, ws]) => ({
-                        [wsId]: {
-                            ip: ws.ip,
-                            userAgent: ws.userAgent,
-                            presence: [ ...ws.presence ]
-                        }
-                    }))
+                    const sockets = [...localSockets].map(([wsId, ws]) => ([
+                            { wsId },
+                            {
+                                ip: ws.ip,
+                                userAgent: ws.userAgent,
+                                presence: [ ...ws.presence ]
+                            }]
+                    ))
                     const result = {
-                        channels: [],
+                        // channels: [],
                         sockets
                     }
+                    this.send(res, JSON.stringify(result));
 
-                    this.server.adapter.getChannels(appId, true).then(localChannels => {
-                        Log.info({localChannels})
-                        result.channels = [...localChannels].map(([channel, wsIds]) => ({[channel]: Array.from(wsIds)} ))
-
-                        this.send(res, JSON.stringify(result));
-                    })
+                    // this.server.adapter.getChannels(appId, true).then(localChannels => {
+                    //     Log.info({localChannels})
+                    //     result.channels = [...localChannels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ))
+                    //
+                    //     this.send(res, JSON.stringify(result));
+                    // })
 
                 });
             }
