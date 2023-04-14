@@ -150,7 +150,6 @@ export class WsHandler {
                         if (ws.app.enableUserAuthentication) {
                             this.setUserAuthenticationTimeout(ws);
                         }
-
                         this.server.metricsManager.markNewConnection(ws);
                     }
                 });
@@ -274,11 +273,10 @@ export class WsHandler {
      * Mutate the upgrade request.
      */
     handleUpgrade(res: HttpResponse, req: HttpRequest, context): any {
-        Log.info('handleUpgrade');
-        Log.info({req});
-
+        // Log.info('handleUpgrade');
+        // Log.info({req});
         const userAgent = req.getHeader('user-agent');
-        Log.info({userAgent});
+        // Log.info({userAgent});
         res.upgrade(
             {
                 ip: ab2str(res.getRemoteAddressAsText()),

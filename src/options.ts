@@ -142,6 +142,9 @@ export interface Options {
     metrics: {
         enabled: boolean;
         driver: string;
+        debugChannel: string;
+        debugEvent: string;
+        debugAppId: string;
         host: string;
         prometheus: {
             prefix: string;

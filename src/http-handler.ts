@@ -73,17 +73,17 @@ export class HttpHandler {
                             }]
                     ))
                     const result = {
-                        // channels: [],
+                        channels: [],
                         sockets
                     }
-                    this.send(res, JSON.stringify(result));
+                    // this.send(res, JSON.stringify(result));
 
-                    // this.server.adapter.getChannels(appId, true).then(localChannels => {
-                    //     Log.info({localChannels})
-                    //     result.channels = [...localChannels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ))
-                    //
-                    //     this.send(res, JSON.stringify(result));
-                    // })
+                    this.server.adapter.getChannels(appId, true).then(localChannels => {
+                        Log.info({localChannels})
+                        result.channels = [...localChannels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ))
+
+                        this.send(res, JSON.stringify(result));
+                    })
 
                 });
             }

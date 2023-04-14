@@ -4,6 +4,7 @@ import { Log } from './../log';
 import { MetricsInterface } from './metrics-interface';
 import { PrometheusMetricsDriver } from './prometheus-metrics-driver';
 import { Server } from '../server';
+import {WebsocketMetricsDriver} from "./websocket-metrics-driver";
 
 export class Metrics implements MetricsInterface {
     /**
@@ -17,9 +18,12 @@ export class Metrics implements MetricsInterface {
     constructor(protected server: Server) {
         if (server.options.metrics.driver === 'prometheus') {
             this.driver = new PrometheusMetricsDriver(server);
-        } else {
+        }else if (server.options.metrics.driver === 'websocket') {
+            this.driver = new WebsocketMetricsDriver(server);
+        }else {
             Log.error('No metrics driver specified.');
         }
+
     }
 
     /**

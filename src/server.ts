@@ -167,7 +167,7 @@ export class Server {
             min: 0,
             max: 7,
         },
-        debug: true,
+        debug: false,
         eventLimits: {
             maxChannelsAtOnce: 100,
             maxNameLength: 200,
@@ -185,8 +185,11 @@ export class Server {
             process_id: process.pid || uuidv4(),
         },
         metrics: {
-            enabled: false,
-            driver: 'prometheus',
+            enabled: true,
+            driver: 'websocket',//'prometheus',
+            debugChannel: 'debug_soketi',
+            debugEvent: 'DebugSoketiEvent',
+            debugAppId: '967325',
             host: '0.0.0.0',
             prometheus: {
                 prefix: 'soketi_',
