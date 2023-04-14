@@ -70,7 +70,7 @@ export class WebsocketMetricsDriver implements MetricsInterface {
             data: copyMessage,
         };
         console.log(msg);
-        // const appId = this.server.options.metrics.debugAppId
+        // const appId = this.server.options.metrics.debugAppId;
 
         this.server.adapter.send(appId, msg.channel, JSON.stringify(msg), '');
     }
