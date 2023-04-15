@@ -51,7 +51,7 @@ export class WebsocketMetricsDriver implements MetricsInterface {
     markNewConnection(ws: WebSocket): void {
         Log.info('markNewConnection');
         Log.info( `new connection app: ${ws.app.id}`);
-        const message = { type: 'NewConnection',}
+        const message = { type: 'NewConnection', instance: this.server.options.metrics.currentInstance }
         this.sendMessage(ws.app.id, message);
         // Log.info( `ip: ${ws.app.ip}`)
         // Log.info( `user agent: ${ws.app.userAgent}`)
@@ -59,7 +59,7 @@ export class WebsocketMetricsDriver implements MetricsInterface {
 
     sendMessage(appId: string, message: any){
         Log.info('send debug Message');
-        let copyMessage = Object.assign({}, message);
+        let copyMessage = Object.assign({ type: 'SendMessage', instance: this.server.options.metrics.currentInstance }, message);
         if(copyMessage.event){
             copyMessage.event = this.server.options.metrics.debugEvent;
         }

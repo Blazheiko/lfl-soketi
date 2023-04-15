@@ -145,6 +145,7 @@ export interface Options {
         debugChannel: string;
         debugEvent: string;
         debugAppId: string;
+        currentInstance: string;
         host: string;
         prometheus: {
             prefix: string;

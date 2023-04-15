@@ -29,7 +29,7 @@ export class Server {
      */
     public options: Options = {
         adapter: {
-            driver: 'local',//'redis',
+            driver: 'redis' ,//,'local'
             redis: {
                 requestsTimeout: 5_000,
                 prefix: 'soketi',
@@ -149,13 +149,25 @@ export class Server {
                 password: 'password',
                 database: 'main',
             },
+            // redis: {
+            //     host: '172.31.32.6',
+            //     port: 10603,
+            //     db: 0,
+            //     username: null,
+            //     password: 'redis-protected2020',
+            //     keyPrefix: 'soketi',
+            //     sentinels: null,
+            //     sentinelPassword: null,
+            //     name: 'mymaster',
+            //     clusterNodes: [],
+            // },
             redis: {
-                host: '172.31.32.6',
-                port: 10603,
+                host: '127.0.0.1',
+                port: 6379,
                 db: 0,
                 username: null,
-                password: 'redis-protected2020',
-                keyPrefix: 'soketi',
+                password: null,
+                keyPrefix: 'soketi_local:',
                 sentinels: null,
                 sentinelPassword: null,
                 name: 'mymaster',
@@ -189,6 +201,7 @@ export class Server {
             driver: 'websocket',//'prometheus',
             debugChannel: 'debug_soketi',
             debugEvent: 'DebugSoketiEvent',
+            currentInstance: '',
             debugAppId: '967325',
             host: '0.0.0.0',
             prometheus: {
@@ -197,7 +210,7 @@ export class Server {
             port: 9601,
         },
         mode: 'full',
-        port: 6001,
+        port: 6002,
         pathPrefix: '',
         presence: {
             maxMembersPerChannel: 100,
@@ -244,8 +257,8 @@ export class Server {
         userAuthenticationTimeout: 30_000,
         webhooks: {
             batching: {
-                enabled: false,
-                duration: 50,
+                enabled: true,
+                duration: 1000,
             },
         },
     };

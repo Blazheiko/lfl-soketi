@@ -54,40 +54,23 @@ export class HttpHandler {
         });
     }
 
-    getInfoAllWS(res: HttpResponse,appId: string) {
-        this.attachMiddleware(res, [
-            this.corkMiddleware,
-            this.corsMiddleware,
-        ]).then(res => {
-            if (this.server.closing) {
-                this.serverErrorResponse(res, 'LflTest The server is closing. Choose another server. :)');
-            } else {
-                this.server.adapter.getSockets(appId, true).then(localSockets => {
-                    Log.info({localSockets});
-                    const sockets = [...localSockets].map(([wsId, ws]) => ([
-                            { wsId },
-                            {
-                                ip: ws.ip,
-                                userAgent: ws.userAgent,
-                                presence: [ ...ws.presence ]
-                            }]
-                    ))
-                    const result = {
-                        channels: [],
-                        sockets
-                    }
-                    // this.send(res, JSON.stringify(result));
+    async getInfoAllWS(res: HttpResponse,appId: string) {
+       const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
+        if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
 
-                    this.server.adapter.getChannels(appId, true).then(localChannels => {
-                        Log.info({localChannels})
-                        result.channels = [...localChannels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ))
+        // const localSockets = await this.server.adapter.getSockets(appId, true);
+        const namespace = await this.server.adapter.getNamespace(appId);
+        const sockets = [...namespace.sockets].map(([wsId, ws]) => ([{ wsId },
+                                                    {
+                                                        ip: ws.ip,
+                                                        userAgent: ws.userAgent,
+                                                        presence: [ ...ws.presence ]
+                                                    }]))
+        const channels = [...namespace.channels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ));
+        const users = [...namespace.users].map(([userId, wsIds]) => ([userId, Array.from(wsIds)] ));
+        Log.info({users, channels});
 
-                        this.send(res, JSON.stringify(result));
-                    })
-
-                });
-            }
-        });
+        this.send(res, JSON.stringify({ channels, users, sockets }));
     }
 
     acceptTraffic(res: HttpResponse) {
