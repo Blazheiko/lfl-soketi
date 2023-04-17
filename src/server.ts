@@ -697,6 +697,12 @@ export class Server {
             server.get(this.url('/ready'), (res, req) => this.httpHandler.ready(res));
             server.get(this.url('/lfl-test'), (res, req) => this.httpHandler.lflTest(res));
             server.get(this.url('/service/:appId/get-info-all-ws'), (res, req) => this.httpHandler.getInfoAllWS(res, req.getParameter(0)));
+            server.get(this.url('/service/get-config'), (res, req) => this.httpHandler.getConfig(res));
+            server.post(this.url('/service/change-soketi-for-debug'), (res, req) => {
+                res.query = queryString.parse(req.getQuery());
+
+                return this.httpHandler.changeSoketiForDebug(res);
+            });
 
             if (this.canProcessRequests()) {
                 server.get(this.url('/accept-traffic'), (res, req) => this.httpHandler.acceptTraffic(res));

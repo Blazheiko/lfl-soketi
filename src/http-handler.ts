@@ -73,6 +73,22 @@ export class HttpHandler {
         this.send(res, JSON.stringify({ channels, users, sockets }));
     }
 
+    async getConfig(res: HttpResponse,) {
+       const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
+        if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
+        const config = this.server.options
+
+        this.send(res, JSON.stringify({status: 'ok', config }));
+    }
+
+    async changeSoketiForDebug(res: HttpResponse) {
+       const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
+        if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
+        console.log(res.query)
+
+        this.send(res, JSON.stringify({status: 'ok'}));
+    }
+
     acceptTraffic(res: HttpResponse) {
         this.attachMiddleware(res, [
             this.corsMiddleware,
