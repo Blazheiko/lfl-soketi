@@ -1,12 +1,11 @@
-import {MetricsInterface} from "./metrics-interface";
-import { WebSocket } from 'uWebSockets.js';
-import {metric} from "prom-client";
 import {Server} from "../server";
-import * as prom from "prom-client";
+import {metric} from "prom-client";
 import {Log} from "../log";
+import {WebSocket} from "uWebSockets.js";
+import {DebuggerInterface} from "./debugger-interface";
 
-export class WebsocketMetricsDriver implements MetricsInterface {
-    driver: MetricsInterface;
+export class WebsocketDebuggerDriver implements DebuggerInterface {
+    driver: DebuggerInterface;
     constructor(protected server: Server) {
 
 
@@ -29,11 +28,18 @@ export class WebsocketMetricsDriver implements MetricsInterface {
     }
 
     markApiMessage(appId: string, incomingMessage: any, sentMessage: any): void {
-        Log.info('markApiMessage')
+        Log.info('markApiMessage');
+        if( this.checkDebugMessage(sentMessage) ) {
+            Log.info('markWsMessageReceived');
+            console.log({ incomingMessage });
+            this.sendMessage(appId, incomingMessage,'ApiMessage');
+        }
     }
 
     markDisconnection(ws: WebSocket): void {
-        Log.info('markDisconnection')
+        Log.info('markDisconnection');
+        const message = { event: 'Disconnection' }
+        this.sendMessage(ws.app.id, message,'Disconnection');
     }
 
     markHorizontalAdapterRequestReceived(appId: string): void {
@@ -51,54 +57,56 @@ export class WebsocketMetricsDriver implements MetricsInterface {
     markNewConnection(ws: WebSocket): void {
         Log.info('markNewConnection');
         Log.info( `new connection app: ${ws.app.id}`);
-        const message = { type: 'NewConnection', instance: this.server.options.metrics.currentInstance }
-        this.sendMessage(ws.app.id, message);
-        // Log.info( `ip: ${ws.app.ip}`)
-        // Log.info( `user agent: ${ws.app.userAgent}`)
+        const message = { event: 'NewConnection' }
+        this.sendMessage(ws.app.id, message,'NewConnection');
     }
 
-    sendMessage(appId: string, message: any){
+    sendMessage(appId: string, message: any, type: string){
         Log.info('send debug Message');
-        let copyMessage = Object.assign({ type: 'SendMessage', instance: this.server.options.metrics.currentInstance }, message);
+        let copyMessage = Object.assign({
+            type: type,
+            instance: this.server.options.debugger.currentInstance,
+            eventStart: message.event
+        }, message);
         if(copyMessage.event){
-            copyMessage.event = this.server.options.metrics.debugEvent;
+            copyMessage.event = this.server.options.debugger.debugEvent;
         }
 
         const msg = {
-            event: this.server.options.metrics.debugEvent,
-            channel: this.server.options.metrics.debugChannel,
+            event: this.server.options.debugger.debugEvent,
+            channel: this.server.options.debugger.debugChannel,
             data: copyMessage,
         };
         console.log(msg);
-        // const appId = this.server.options.metrics.debugAppId;
+        // const appId = this.server.options.debugger.debugAppId;
 
         this.server.adapter.send(appId, msg.channel, JSON.stringify(msg), '');
     }
 
     markWsMessageReceived(appId: string, message: any): void {
-
         if( this.checkDebugMessage(message) ) {
             Log.info('markWsMessageReceived');
             console.log({ message });
-            this.sendMessage(appId, message);
+            this.sendMessage(appId, message,'SendMessage');
         }
-
     }
 
     checkDebugMessage(message: any): boolean{
         if(!message) return false;
-        // Log.info( this.server.options.metrics.debugChannel )
+        // Log.info( this.server.options.
+        // .debugChannel )
         return !( message.event === 'pusher:ping' ||
-                  message.event === 'pusher:pong' ||
-                  message.channel === this.server.options.metrics.debugChannel ||
-                  ( message.data && message.data.channel === this.server.options.metrics.debugChannel )
-            )
-        }
+            message.event === 'pusher:pong' ||
+            message.channel === this.server.options.debugger.debugChannel ||
+            ( message.data && message.data.channel === this.server.options.debugger.debugChannel )
+        )
+    }
 
     markWsMessageSent(appId: string, sentMessage: any): void {
         if( this.checkDebugMessage(sentMessage) ) {
             Log.info('markWsMessageSent')
             console.log({ sentMessage });
+            this.sendMessage(appId, sentMessage,'WsMessageSent');
         }
 
     }
@@ -109,6 +117,14 @@ export class WebsocketMetricsDriver implements MetricsInterface {
 
     trackHorizontalAdapterResolvedPromises(appId: string, resolved?: boolean): void {
         Log.info('trackHorizontalAdapterResolvedPromises')
+    }
+
+    getDebuggerAsJson(): Promise<metric[] | void> {
+        return Promise.resolve(undefined);
+    }
+
+    getDebuggerAsPlaintext(): Promise<string> {
+        return Promise.resolve("");
     }
 
 }

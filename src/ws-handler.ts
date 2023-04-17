@@ -64,6 +64,7 @@ export class WsHandler {
 
                 if (ws.app) {
                     this.server.metricsManager.markWsMessageSent(ws.app.id, data);
+                    this.server.debuggerManager.markWsMessageSent(ws.app.id, data);
                 }
 
                 if (this.server.options.debug) {
@@ -151,6 +152,7 @@ export class WsHandler {
                             this.setUserAuthenticationTimeout(ws);
                         }
                         this.server.metricsManager.markNewConnection(ws);
+                        this.server.debuggerManager.markNewConnection(ws);
                     }
                 });
             });
@@ -195,6 +197,7 @@ export class WsHandler {
 
         if (ws.app) {
             this.server.metricsManager.markWsMessageReceived(ws.app.id, message);
+            this.server.debuggerManager.markWsMessageReceived(ws.app.id, message);
         }
     }
 
@@ -221,6 +224,7 @@ export class WsHandler {
             if (ws.app) {
                 this.server.adapter.removeSocket(ws.app.id, ws.id);
                 this.server.metricsManager.markDisconnection(ws);
+                this.server.debuggerManager.markDisconnection(ws);
             }
 
             this.clearTimeout(ws);

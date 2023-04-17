@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WebhookSender } from './webhook-sender';
 import { WebSocket } from 'uWebSockets.js';
 import { WsHandler } from './ws-handler';
+import {Debugger, DebuggerInterface} from "./debugger";
 
 const Discover = require('node-discover');
 const queryString = require('query-string');
@@ -56,7 +57,7 @@ export class Server {
             },
         },
         appManager: {
-            driver: 'array',//'postgres',
+            driver: 'postgres', //'array',//'postgres',
             cache: {
                 enabled: false,
                 ttl: -1,
@@ -142,12 +143,19 @@ export class Server {
                 password: 'password',
                 database: 'main',
             },
+            // postgres: {
+            //     host: '172.31.32.6',
+            //     port: 5432,
+            //     user: 'postgres',
+            //     password: 'password',
+            //     database: 'main',
+            // },
             postgres: {
-                host: '172.31.32.6',
+                host: '127.0.0.1',
                 port: 5432,
                 user: 'postgres',
-                password: 'password',
-                database: 'main',
+                password: 'root',
+                database: 'soketi-local',
             },
             // redis: {
             //     host: '172.31.32.6',
@@ -179,7 +187,7 @@ export class Server {
             min: 0,
             max: 7,
         },
-        debug: false,
+        debug: true,
         eventLimits: {
             maxChannelsAtOnce: 100,
             maxNameLength: 200,
@@ -196,13 +204,16 @@ export class Server {
         instance: {
             process_id: process.pid || uuidv4(),
         },
-        metrics: {
+        debugger: {
             enabled: true,
             driver: 'websocket',//'prometheus',
             debugChannel: 'debug_soketi',
             debugEvent: 'DebugSoketiEvent',
             currentInstance: '',
-            debugAppId: '967325',
+        },
+        metrics: {
+            enabled: false,
+            driver: 'prometheus',
             host: '0.0.0.0',
             prometheus: {
                 prefix: 'soketi_',
@@ -210,7 +221,7 @@ export class Server {
             port: 9601,
         },
         mode: 'full',
-        port: 6002,
+        port: 6001,
         pathPrefix: '',
         presence: {
             maxMembersPerChannel: 100,
@@ -297,6 +308,11 @@ export class Server {
      * The metrics handler.
      */
     public metricsManager: MetricsInterface;
+
+    /**
+     * The debugger handler.
+     */
+    public debuggerManager: DebuggerInterface;
 
     /**
      * The adapter used to interact with the socket storage.
@@ -488,6 +504,7 @@ export class Server {
             this.setAppManager(new AppManager(this)),
             this.setAdapter(new Adapter(this)),
             this.setMetricsManager(new Metrics(this)),
+            this.setDebuggerManager(new Debugger(this)),
             this.setRateLimiter(new RateLimiter(this)),
             this.setQueueManager(new Queue(this)),
             this.setCacheManager(new CacheManager(this)),
@@ -520,6 +537,13 @@ export class Server {
     setMetricsManager(instance: MetricsInterface): Promise<void> {
         return new Promise(resolve => {
             this.metricsManager = instance;
+            resolve();
+        });
+    }
+
+    setDebuggerManager(instance: DebuggerInterface): Promise<void> {
+        return new Promise(resolve => {
+            this.debuggerManager = instance;
             resolve();
         });
     }

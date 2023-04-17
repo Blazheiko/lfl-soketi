@@ -1,22 +1,23 @@
-import * as prom from 'prom-client';
-import { WebSocket } from 'uWebSockets.js';
-import { Log } from './../log';
-import { MetricsInterface } from './metrics-interface';
-import { PrometheusMetricsDriver } from './prometheus-metrics-driver';
-import { Server } from '../server';
 
-export class Metrics implements MetricsInterface {
+import {Server} from "../server";
+import {Log} from "../log";
+import {WebSocket} from "uWebSockets.js";
+import * as prom from "prom-client";
+import {DebuggerInterface} from "./debugger-interface";
+import {WebsocketDebuggerDriver} from "./websocket-debugger-driver";
+
+export class Debugger implements DebuggerInterface {
     /**
      * The Metrics driver.
      */
-    public driver: MetricsInterface;
+    public driver: DebuggerInterface;
 
     /**
      * Initialize the Prometheus exporter.
      */
     constructor(protected server: Server) {
-        if (server.options.metrics.driver === 'prometheus') {
-            this.driver = new PrometheusMetricsDriver(server);
+        if (server.options.debugger.driver === 'websocket') {
+            this.driver = new WebsocketDebuggerDriver(server);
         }else {
             Log.error('No metrics driver specified.');
         }
@@ -27,7 +28,7 @@ export class Metrics implements MetricsInterface {
      * Handle a new connection.
      */
     markNewConnection(ws: WebSocket): void {
-        if (this.server.options.metrics.enabled) {
+        if (this.server.options.debugger.enabled) {
             this.driver.markNewConnection(ws);
         }
     }
@@ -36,7 +37,7 @@ export class Metrics implements MetricsInterface {
      * Handle a disconnection.
      */
     markDisconnection(ws: WebSocket): void {
-        if (this.server.options.metrics.enabled) {
+        if (this.server.options.debugger.enabled) {
             this.driver.markDisconnection(ws);
         }
     }
@@ -45,7 +46,7 @@ export class Metrics implements MetricsInterface {
      * Handle a new API message event being received and sent out.
      */
     markApiMessage(appId: string, incomingMessage: any, sentMessage: any): void {
-        if (this.server.options.metrics.enabled) {
+        if (this.server.options.debugger.enabled) {
             this.driver.markApiMessage(appId, incomingMessage, sentMessage);
         }
     }
@@ -54,7 +55,7 @@ export class Metrics implements MetricsInterface {
      * Handle a new WS client message event being sent.
      */
     markWsMessageSent(appId: string, sentMessage: any): void {
-        if (this.server.options.metrics.enabled) {
+        if (this.server.options.debugger.enabled) {
             this.driver.markWsMessageSent(appId, sentMessage);
         }
     }
@@ -63,7 +64,7 @@ export class Metrics implements MetricsInterface {
      * Handle a new WS client message being received.
      */
     markWsMessageReceived(appId: string, message: any): void {
-        if (this.server.options.metrics.enabled) {
+        if (this.server.options.debugger.enabled) {
             this.driver.markWsMessageReceived(appId, message);
         }
     }
@@ -89,44 +90,44 @@ export class Metrics implements MetricsInterface {
         this.driver.markHorizontalAdapterRequestSent(appId);
     }
 
-     /**
-      * Handle a new horizontal adapter request that was marked as received.
-      */
+    /**
+     * Handle a new horizontal adapter request that was marked as received.
+     */
     markHorizontalAdapterRequestReceived(appId: string): void {
         this.driver.markHorizontalAdapterRequestReceived(appId);
     }
 
-     /**
-      * Handle a new horizontal adapter response from other node.
-      */
+    /**
+     * Handle a new horizontal adapter response from other node.
+     */
     markHorizontalAdapterResponseReceived(appId: string): void {
         this.driver.markHorizontalAdapterResponseReceived(appId);
     }
 
     /**
-     * Get the stored metrics as plain text, if possible.
+     * Get the stored debugger as plain text, if possible.
      */
-    getMetricsAsPlaintext(): Promise<string> {
-        if (!this.server.options.metrics.enabled) {
+    getDebuggerAsPlaintext(): Promise<string> {
+        if (!this.server.options.debugger.enabled) {
             return Promise.resolve('');
         }
 
-        return this.driver.getMetricsAsPlaintext();
+        return this.driver.getDebuggerAsPlaintext();
     }
 
     /**
-     * Get the stored metrics as JSON.
+     * Get the stored debugger as JSON.
      */
-    getMetricsAsJson(): Promise<prom.metric[]|void> {
-        if (!this.server.options.metrics.enabled) {
+    getDebuggerAsJson(): Promise<prom.metric[]|void> {
+        if (!this.server.options.debugger.enabled) {
             return Promise.resolve();
         }
 
-        return this.driver.getMetricsAsJson();
+        return this.driver.getDebuggerAsJson();
     }
 
     /**
-     * Reset the metrics at the server level.
+     * Reset the debugger at the server level.
      */
     clear(): Promise<void> {
         return this.driver.clear();

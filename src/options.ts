@@ -139,13 +139,16 @@ export interface Options {
     instance: {
         process_id: string|number;
     };
-    metrics: {
+    debugger: {
         enabled: boolean;
         driver: string;
         debugChannel: string;
         debugEvent: string;
-        debugAppId: string;
         currentInstance: string;
+    };
+    metrics: {
+        enabled: boolean;
+        driver: string;
         host: string;
         prometheus: {
             prefix: string;
