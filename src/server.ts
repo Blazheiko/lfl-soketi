@@ -700,7 +700,6 @@ export class Server {
             server.get(this.url('/service/get-config'), (res, req) => this.httpHandler.getConfig(res));
             server.post(this.url('/service/change-soketi-for-debug'), (res, req) => {
                 res.query = queryString.parse(req.getQuery());
-
                 return this.httpHandler.changeSoketiForDebug(res);
             });
 

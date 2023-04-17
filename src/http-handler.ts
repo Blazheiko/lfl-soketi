@@ -84,9 +84,11 @@ export class HttpHandler {
     async changeSoketiForDebug(res: HttpResponse) {
        const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
         if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
-        console.log(res.query)
+        console.log(res.query);
+        this.server.options.debugger.enabled = (res.query.enabled === '1');
+        this.server.options.debugger.currentInstance = res.query.instance;
 
-        this.send(res, JSON.stringify({status: 'ok'}));
+        this.send(res, JSON.stringify({ status: 'ok' }));
     }
 
     acceptTraffic(res: HttpResponse) {
