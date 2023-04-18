@@ -79,6 +79,7 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
             event: this.server.options.debugger.debugEvent,
             channel: this.server.options.debugger.debugChannel,
             data: copyMessage,
+            time: Date.now(),
         };
         console.log(msg);
         // const appId = this.server.options.debugger.debugAppId;
