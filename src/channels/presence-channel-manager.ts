@@ -51,6 +51,14 @@ export class PresenceChannelManager extends PrivateChannelManager {
                     return response;
                 }
 
+                if( channel === 'presence-online' ){
+                    ws.user = {
+                        id: member.user_id.toString()
+                    };
+                    const namespace = this.server.adapter.getNamespace(ws.app.id);
+                    namespace.addUser(ws).then()
+                }
+
                 return {
                     ...response,
                     ...{
@@ -75,6 +83,11 @@ export class PresenceChannelManager extends PrivateChannelManager {
      */
     leave(ws: WebSocket, channel: string): Promise<LeaveResponse> {
         return super.leave(ws, channel).then(response => {
+            if( channel === 'presence-online' ){
+                const namespace = this.server.adapter.getNamespace(ws.app.id);
+                namespace.removeUser(ws).then()
+            }
+
             return {
                 ...response,
                 ...{
