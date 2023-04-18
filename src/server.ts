@@ -212,9 +212,9 @@ export class Server {
             currentInstance: '',
         },
         metrics: {
-            enabled: false,
+            enabled: true,
             driver: 'prometheus',
-            host: '0.0.0.0',
+            host: '127.0.0.1',
             prometheus: {
                 prefix: 'soketi_',
             },

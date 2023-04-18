@@ -226,6 +226,7 @@ export class HttpHandler {
                 let broadcastMessage = { channels };
 
                 this.server.metricsManager.markApiMessage(res.params.appId, {}, broadcastMessage);
+                this.server.debuggerManager.markApiMessage(res.params.appId, {}, broadcastMessage);
 
                 this.sendJson(res, broadcastMessage);
             });
@@ -263,6 +264,7 @@ export class HttpHandler {
                             };
 
                             this.server.metricsManager.markApiMessage(res.params.appId, {}, broadcastMessage);
+                            this.server.debuggerManager.markApiMessage(res.params.appId, {}, broadcastMessage);
 
                             this.sendJson(res, broadcastMessage);
                         }).catch(err => {
@@ -276,6 +278,7 @@ export class HttpHandler {
                 }
 
                 this.server.metricsManager.markApiMessage(res.params.appId, {}, response);
+                this.server.debuggerManager.markApiMessage(res.params.appId, {}, response);
 
                 return this.sendJson(res, response);
             }).catch(err => {
@@ -308,6 +311,7 @@ export class HttpHandler {
                 };
 
                 this.server.metricsManager.markApiMessage(res.params.appId, {}, broadcastMessage);
+                this.server.debuggerManager.markApiMessage(res.params.appId, {}, broadcastMessage);
 
                 this.sendJson(res, broadcastMessage);
             });
@@ -326,6 +330,7 @@ export class HttpHandler {
             this.checkMessageToBroadcast(res.body as PusherApiMessage, res.app as App).then(message => {
                 this.broadcastMessage(message, res.app.id);
                 this.server.metricsManager.markApiMessage(res.app.id, res.body, { ok: true });
+                this.server.debuggerManager.markApiMessage(res.app.id, res.body, { ok: true});
                 this.sendJson(res, { ok: true });
             }).catch(error => {
                 if (error.code === 400) {
@@ -355,6 +360,7 @@ export class HttpHandler {
             Promise.all(batch.map(message => this.checkMessageToBroadcast(message, res.app as App))).then(messages => {
                 messages.forEach(message => this.broadcastMessage(message, res.app.id));
                 this.server.metricsManager.markApiMessage(res.app.id, res.body, { ok: true });
+                this.server.debuggerManager.markApiMessage(res.app.id, res.body, { ok: true });
                 this.sendJson(res, { ok: true });
             }).catch((error: MessageCheckError) => {
                 if (error.code === 400) {

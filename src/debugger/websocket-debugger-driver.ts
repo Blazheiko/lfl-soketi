@@ -29,11 +29,13 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
 
     markApiMessage(appId: string, incomingMessage: any, sentMessage: any): void {
         Log.info('markApiMessage');
-        if( this.checkDebugMessage(sentMessage) ) {
-            Log.info('markWsMessageReceived');
-            console.log({ incomingMessage });
-            this.sendMessage(appId, incomingMessage,'ApiMessage');
-        }
+        // if( this.checkDebugMessage(sentMessage) ) {
+        //     Log.info('markWsMessageReceived');
+        //     console.log({ incomingMessage });
+        //     this.sendMessage(appId, incomingMessage,'ApiMessage');
+        // }
+        console.log({ incomingMessage });
+        this.sendMessage(appId, { incomingMessage, sentMessage },'ApiMessage');
     }
 
     markDisconnection(ws: WebSocket): void {
