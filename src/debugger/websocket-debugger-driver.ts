@@ -68,7 +68,8 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
         let copyMessage = Object.assign({
             type: type,
             instance: this.server.options.debugger.currentInstance,
-            eventStart: message.event
+            eventStart: message.event,
+            time: Date.now(),
         }, message);
         // if(copyMessage.event){
         //     copyMessage.event = this.server.options.debugger.debugEvent;
@@ -79,7 +80,6 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
             event: this.server.options.debugger.debugEvent,
             channel: this.server.options.debugger.debugChannel,
             data: copyMessage,
-            time: Date.now(),
         };
         console.log(msg);
         // const appId = this.server.options.debugger.debugAppId;
