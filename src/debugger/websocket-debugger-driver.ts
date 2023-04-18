@@ -70,9 +70,10 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
             instance: this.server.options.debugger.currentInstance,
             eventStart: message.event
         }, message);
-        if(copyMessage.event){
-            copyMessage.event = this.server.options.debugger.debugEvent;
-        }
+        // if(copyMessage.event){
+        //     copyMessage.event = this.server.options.debugger.debugEvent;
+        // }
+        copyMessage.event = this.server.options.debugger.debugEvent;
 
         const msg = {
             event: this.server.options.debugger.debugEvent,
