@@ -19,61 +19,99 @@ export class PresenceChannelManager extends PrivateChannelManager {
     /**
      * Join the connection to the channel.
      */
+    // join(ws: WebSocket, channel: string, message?: PusherMessage): Promise<JoinResponse> {
+    //     return this.server.adapter.getChannelMembersCount(ws.app.id, channel).then(membersCount => {
+    //         if (membersCount + 1 > ws.app.maxPresenceMembersPerChannel) {
+    //             return {
+    //                 success: false,
+    //                 ws,
+    //                 errorCode: 4100,
+    //                 errorMessage: 'The maximum members per presence channel limit was reached',
+    //                 type: 'LimitReached',
+    //             };
+    //         }
+    //
+    //         let member: PresenceMember = JSON.parse(message.data.channel_data);
+    //
+    //         let memberSizeInKb = Utils.dataToKilobytes(member.user_info);
+    //
+    //         if (memberSizeInKb > ws.app.maxPresenceMemberSizeInKb) {
+    //             return {
+    //                 success: false,
+    //                 ws,
+    //                 errorCode: 4301,
+    //                 errorMessage: `The maximum size for a channel member is ${ws.app.maxPresenceMemberSizeInKb} KB.`,
+    //                 type: 'LimitReached',
+    //             };
+    //         }
+    //
+    //         return super.join(ws, channel, message).then(response => {
+    //             // Make sure to forward the response in case an error occurs.
+    //             if (!response.success) {
+    //                 return response;
+    //             }
+    //
+    //             if( channel === 'presence-online' ){
+    //                 ws.user = {
+    //                     id: member.user_id.toString()
+    //                 };
+    //                 const namespace = this.server.adapter.getNamespace(ws.app.id);
+    //                 namespace.addUser(ws).then()
+    //             }
+    //
+    //             return {
+    //                 ...response,
+    //                 ...{
+    //                     member,
+    //                 },
+    //             };
+    //         });
+    //     }).catch(err => {
+    //         Log.error(err);
+    //         return {
+    //             success: false,
+    //             ws,
+    //             errorCode: 4302,
+    //             errorMessage: 'A server error has occured.',
+    //             type: 'ServerError',
+    //         };
+    //     });
+    // }
+
     join(ws: WebSocket, channel: string, message?: PusherMessage): Promise<JoinResponse> {
-        return this.server.adapter.getChannelMembersCount(ws.app.id, channel).then(membersCount => {
-            if (membersCount + 1 > ws.app.maxPresenceMembersPerChannel) {
-                return {
-                    success: false,
-                    ws,
-                    errorCode: 4100,
-                    errorMessage: 'The maximum members per presence channel limit was reached',
-                    type: 'LimitReached',
-                };
-            }
+        let member: PresenceMember = JSON.parse(message.data.channel_data);
 
-            let member: PresenceMember = JSON.parse(message.data.channel_data);
+        let memberSizeInKb = Utils.dataToKilobytes(member.user_info);
 
-            let memberSizeInKb = Utils.dataToKilobytes(member.user_info);
-
-            if (memberSizeInKb > ws.app.maxPresenceMemberSizeInKb) {
-                return {
-                    success: false,
-                    ws,
-                    errorCode: 4301,
-                    errorMessage: `The maximum size for a channel member is ${ws.app.maxPresenceMemberSizeInKb} KB.`,
-                    type: 'LimitReached',
-                };
-            }
-
-            return super.join(ws, channel, message).then(response => {
-                // Make sure to forward the response in case an error occurs.
-                if (!response.success) {
-                    return response;
-                }
-
-                if( channel === 'presence-online' ){
-                    ws.user = {
-                        id: member.user_id.toString()
-                    };
-                    const namespace = this.server.adapter.getNamespace(ws.app.id);
-                    namespace.addUser(ws).then()
-                }
-
-                return {
-                    ...response,
-                    ...{
-                        member,
-                    },
-                };
-            });
-        }).catch(err => {
-            Log.error(err);
-            return {
+        if (memberSizeInKb > ws.app.maxPresenceMemberSizeInKb) {
+            return Promise.resolve({
                 success: false,
                 ws,
-                errorCode: 4302,
-                errorMessage: 'A server error has occured.',
-                type: 'ServerError',
+                errorCode: 4301,
+                errorMessage: `The maximum size for a channel member is ${ws.app.maxPresenceMemberSizeInKb} KB.`,
+                type: 'LimitReached',
+            })
+        }
+
+        return super.join(ws, channel, message).then(response => {
+            // Make sure to forward the response in case an error occurs.
+            if (!response.success) {
+                return response;
+            }
+
+            if( channel === 'presence-online' ){
+                ws.user = {
+                    id: member.user_id.toString()
+                };
+                const namespace = this.server.adapter.getNamespace(ws.app.id);
+                namespace.addUser(ws).then()
+            }
+
+            return {
+                ...response,
+                ...{
+                    member,
+                },
             };
         });
     }
