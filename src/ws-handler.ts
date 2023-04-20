@@ -286,6 +286,7 @@ export class WsHandler {
                 ip: ab2str(res.getRemoteAddressAsText()),
                 ip2: ab2str(res.getProxiedRemoteAddressAsText()),
                 appKey: req.getParameter(0),
+                user: null,
                 userAgent
             },
             req.getHeader('sec-websocket-key'),
