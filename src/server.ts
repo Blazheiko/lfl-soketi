@@ -175,7 +175,7 @@ export class Server {
                 db: 0,
                 username: null,
                 password: null,
-                keyPrefix: 'soketi_local:',
+                keyPrefix: 'soketi',
                 sentinels: null,
                 sentinelPassword: null,
                 name: 'mymaster',
