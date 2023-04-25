@@ -177,7 +177,7 @@ export class RedisAdapter extends HorizontalAdapter {
             this.subClient.quit(),
             this.pubClient.quit(),
         ]).then(() => {
-            //
+            Log.info('disconnect pub/sub client')
         });
     }
 }

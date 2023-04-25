@@ -157,19 +157,20 @@ export class LocalAdapter implements AdapterInterface {
      */
     send(appId: string, channel: string, data: string, exceptingId: string|null = null): any {
         // For user-dedicated channels, intercept the .send() call and use custom logic.
-        if (channel.indexOf('#server-to-user-') === 0) {
-            let userId = channel.split('#server-to-user-').pop();
-
-            this.getUserSockets(appId, userId).then(sockets => {
-                sockets.forEach(ws => {
-                    if (ws.sendJson) {
-                        ws.sendJson(JSON.parse(data));
-                    }
-                });
-            });
-
-            return;
-        }
+        //no used
+        // if (channel.indexOf('#server-to-user-') === 0) {
+        //     let userId = channel.split('#server-to-user-').pop();
+        //
+        //     this.getUserSockets(appId, userId).then(sockets => {
+        //         sockets.forEach(ws => {
+        //             if (ws.sendJson) {
+        //                 ws.sendJson(JSON.parse(data));
+        //             }
+        //         });
+        //     });
+        //
+        //     return;
+        // }
 
         this.getNamespace(appId).getChannelSockets(channel).then(sockets => {
             sockets.forEach((ws) => {
