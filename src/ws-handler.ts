@@ -758,11 +758,6 @@ export class WsHandler {
             return Promise.resolve(true);
         }
         return this.server.adapter.getSocketsCount(ws.app.id).then(wsCount => {
-            // let maxConnections = parseInt(ws.app.maxConnections as string) || -1;
-
-            // if (maxConnections < 0) {
-            //     return true;
-            // }
 
             return wsCount + 1 <= maxConnections;
         }).catch(err => {

@@ -1,4 +1,5 @@
 import { App } from './../app';
+import { WebhookInterface } from "../app";
 import { BaseAppManager } from './base-app-manager';
 import { Log } from '../log';
 import { Knex, knex } from 'knex';
@@ -71,6 +72,31 @@ export abstract class SqlAppManager extends BaseAppManager {
 
             return new App(apps[0] || apps, this.server);
         });
+    }
+    /**
+     * Save a failed webhook send.
+     */
+    saveErrorWebhook(appId: number,webhook: WebhookInterface): void {
+        this.saveError(appId,webhook,'webhook_errors')
+            .then(() => {
+                if (this.server.options.debug) {
+                    Log.error(`Save Error Webhook`);
+                }
+            });
+    }
+
+    /**
+     * Make a Knex insert for the error.
+     */
+    protected saveError(appId: number,webhook: WebhookInterface, tableName: string): Promise<void> {
+        return this.connection(tableName)
+            .insert({
+                appId,
+                webhook,
+                url: webhook.url,
+                created_at: Date.now(),
+                updated_at: Date.now()
+            })
     }
 
     /**

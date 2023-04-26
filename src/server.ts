@@ -185,7 +185,7 @@ export class Server {
         databasePooling: {
             enabled: false,
             min: 0,
-            max: 7,
+            max: 10,
         },
         debug: true,
         eventLimits: {

@@ -22,7 +22,7 @@ const queueProcessors = (server) =>{
                 resolveWebhook()
             })
             .catch(err => {
-                // TODO: Maybe retry exponentially?
+
                 if (retries >= maxRetries) {
                     if (server.options.debug) {
                         Log.webhookSenderTitle('❎ Webhook could not be sent.');
