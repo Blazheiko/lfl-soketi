@@ -1,4 +1,4 @@
-import { App } from './../app';
+import {App, WebhookInterface} from './../app';
 import { AppManagerInterface } from './app-manager-interface';
 import { ArrayAppManager } from './array-app-manager';
 import { DynamoDbAppManager } from './dynamodb-app-manager';
@@ -80,5 +80,9 @@ export class AppManager implements AppManagerInterface {
      */
     getAppSecret(id: string): Promise<string|null> {
         return this.driver.getAppSecret(id);
+    }
+
+    saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void {
+        return this.driver.saveErrorWebhook(appId,webhook, payload, error);
     }
 }

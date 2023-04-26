@@ -76,26 +76,32 @@ export abstract class SqlAppManager extends BaseAppManager {
     /**
      * Save a failed webhook send.
      */
-    saveErrorWebhook(appId: number,webhook: WebhookInterface): void {
-        this.saveError(appId,webhook,'webhook_errors')
+    saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void {
+        this.saveError(appId,webhook, payload, error,'webhook_errors')
             .then(() => {
                 if (this.server.options.debug) {
-                    Log.error(`Save Error Webhook`);
+                    Log.info(`Save Error Webhook`);
                 }
+            })
+            .catch(error => {
+                Log.error(`Save Error Webhook failed`)
+                // Log.info(error)
+                console.error(error)
             });
     }
 
     /**
      * Make a Knex insert for the error.
      */
-    protected saveError(appId: number,webhook: WebhookInterface, tableName: string): Promise<void> {
+    protected saveError(appId: string, webhook: WebhookInterface, payload, error, tableName: string): Promise<void> {
+
         return this.connection(tableName)
             .insert({
                 appId,
                 webhook,
                 url: webhook.url,
-                created_at: Date.now(),
-                updated_at: Date.now()
+                payload,
+                error
             })
     }
 

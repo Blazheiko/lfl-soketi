@@ -1,4 +1,4 @@
-import { App } from '../app';
+import {App, WebhookInterface} from '../app';
 
 export interface AppManagerInterface {
     /**
@@ -20,4 +20,6 @@ export interface AppManagerInterface {
      * Get the app secret by ID.
      */
     getAppSecret(id: string): Promise<string|null>;
+
+    saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void;
 }

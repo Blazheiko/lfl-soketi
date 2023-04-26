@@ -4,13 +4,14 @@ import { Log } from "../log";
 import axios from "axios";
 import { Lambda } from "aws-sdk";
 import { createWebhookHmac, JobData } from "../webhook-sender";
+import {Server} from "../server";
 
-const queueProcessors = (server) =>{
+const queueProcessors = (server: Server) =>{
     let delay = 1000;
     let retries = 0;
     const maxRetries = 4;
 
-    const sendHTTP = ( webhook, payload, server, headers, resolveWebhook ) => {
+    const sendHTTP = ( appId: string,webhook: WebhookInterface , payload, server: Server, headers, resolveWebhook ) => {
         retries++
         // Send HTTP POST to the target URL
         axios.post(webhook.url, payload, { headers })
@@ -21,17 +22,18 @@ const queueProcessors = (server) =>{
                 }
                 resolveWebhook()
             })
-            .catch(err => {
+            .catch(error => {
 
                 if (retries >= maxRetries) {
                     if (server.options.debug) {
                         Log.webhookSenderTitle('❎ Webhook could not be sent.');
-                        Log.webhookSender({ err, webhook, payload });
+                        Log.webhookSender({ error, webhook, payload });
                     }
+                    server.appManager.saveErrorWebhook(appId, webhook, payload, error);
                     resolveWebhook()
                 } else {
                     console.log(`Request to ${webhook.url} failed, ${ retries } retrying in ${ delay } ms`);
-                    setTimeout(() => sendHTTP( webhook, payload, server, headers, resolveWebhook ), delay);
+                    setTimeout(() => sendHTTP(appId, webhook, payload, server, headers, resolveWebhook ), delay);
                     delay *= 2; // exponential backoff
                 }
             });
@@ -131,7 +133,7 @@ const queueProcessors = (server) =>{
                 };
 
                 if (webhook.url) {
-                    sendHTTP( webhook, payload, server, headers, resolveWebhook );
+                    sendHTTP(app.id, webhook, payload, server, headers, resolveWebhook );
                 } else if (webhook.lambda_function) {
                     invokeLambda( webhook, payload, server, headers, resolveWebhook )
                 }

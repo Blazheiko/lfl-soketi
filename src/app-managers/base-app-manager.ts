@@ -1,4 +1,4 @@
-import { App } from '../app';
+import {App, WebhookInterface} from '../app';
 import { AppManagerInterface } from './app-manager-interface';
 
 export class BaseAppManager implements AppManagerInterface {
@@ -25,5 +25,9 @@ export class BaseAppManager implements AppManagerInterface {
                 ? app.secret
                 : null;
         });
+    }
+
+    saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void{
+        return ;
     }
 }
