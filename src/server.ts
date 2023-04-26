@@ -69,7 +69,7 @@ export class Server {
                         key: '7b5dfd4b6b7705303974',
                         secret: 'fe7e4e2b3cd616e6a85e',
                         maxConnections: -1,
-                        enableClientMessages: false,
+                        enableClientMessages: true,
                         enabled: true,
                         maxBackendEventsPerSecond: -1,
                         maxClientEventsPerSecond: -1,
@@ -224,8 +224,8 @@ export class Server {
         port: 6001,
         pathPrefix: '',
         presence: {
-            maxMembersPerChannel: 100,
-            maxMemberSizeInKb: 2,
+            maxMembersPerChannel: 10000,
+            maxMemberSizeInKb: 50,
         },
         queue: {
             driver: 'sync',
