@@ -22,4 +22,6 @@ export interface AppManagerInterface {
     getAppSecret(id: string): Promise<string|null>;
 
     saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void;
+
+    saveErrorClient( appId: string,user_id: string,instance:string, error:object ): void
 }

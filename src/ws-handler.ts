@@ -83,28 +83,18 @@ export class WsHandler {
         // Log.info({userData})
         // ws.myUserData = userData;
 
-        if (this.server.closing) {
-            ws.sendJson({
-                event: 'pusher:error',
-                data: {
-                    code: 4200,
-                    message: 'Server is closing. Please reconnect shortly.',
-                },
-            });
-
-            return ws.end(4200);
-        }
+        if (this.server.closing) this.serverClosingHandler(ws)
 
         this.checkForValidApp(ws).then(validApp => {
             if (!validApp) {
-                ws.sendJson({
+                const errorMessage = {
                     event: 'pusher:error',
                     data: {
                         code: 4001,
                         message: `App key ${ws.appKey} does not exist.`,
                     },
-                });
-
+                };
+                this.errorClientHandler(ws, errorMessage)
                 return ws.end(4001);
             }
 
@@ -112,28 +102,31 @@ export class WsHandler {
 
             this.checkIfAppIsEnabled(ws).then(enabled => {
                 if (!enabled) {
-                    ws.sendJson({
+                    const errorMessage = {
                         event: 'pusher:error',
                         data: {
                             code: 4003,
                             message: 'The app is not enabled.',
                         },
-                    });
-
+                    };
+                    // ws.sendJson(errorMessage);
+                    this.errorClientHandler(ws, errorMessage)
                     return ws.end(4003);
                 }
 
                 this.checkAppConnectionLimit(ws).then(canConnect => {
                     if (!canConnect) {
-                        ws.sendJson({
+                        const errorMessage = {
                             event: 'pusher:error',
                             data: {
                                 code: 4100,
                                 message: 'The current concurrent connections quota has been reached.',
                             },
-                        });
+                        };
 
+                        this.errorClientHandler(ws, errorMessage)
                         ws.end(4100);
+
                     } else {
                         // Make sure to update the socket after new data was pushed in.
                         this.server.adapter.addSocket(ws.app.id, ws);
@@ -154,8 +147,14 @@ export class WsHandler {
                         this.server.metricsManager.markNewConnection(ws);
                         this.server.debuggerManager.markNewConnection(ws);
                     }
+                }).catch((e)=>{
+                    Log.error(e)
                 });
+            }).catch((e)=>{
+                Log.error(e)
             });
+        }).catch((e)=>{
+            Log.error(e)
         });
     }
 
@@ -212,7 +211,7 @@ export class WsHandler {
 
         // If code 4200 (reconnect immediately) is called, it means the `closeAllLocalSockets()` was called.
         if (code !== 4200) {
-            this.evictSocketFromMemory(ws);
+            this.evictSocketFromMemory(ws).then();
         }
     }
 
@@ -222,11 +221,10 @@ export class WsHandler {
     evictSocketFromMemory(ws: WebSocket): Promise<void> {
         return this.unsubscribeFromAllChannels(ws, true).then(() => {
             if (ws.app) {
-                this.server.adapter.removeSocket(ws.app.id, ws.id);
+                this.server.adapter.removeSocket(ws.app.id, ws.id).then();
                 this.server.metricsManager.markDisconnection(ws);
                 this.server.debuggerManager.markDisconnection(ws);
             }
-
             this.clearTimeout(ws);
         });
     }
@@ -244,20 +242,7 @@ export class WsHandler {
         return async.each([...namespaces], ([namespaceId, namespace]: [string, Namespace], nsCallback) => {
             namespace.getSockets().then(sockets => {
                 async.each([...sockets], ([wsId, ws]: [string, WebSocket], wsCallback) => {
-                    try {
-                        ws.sendJson({
-                            event: 'pusher:error',
-                            data: {
-                                code: 4200,
-                                message: 'Server closed. Please reconnect shortly.',
-                            },
-                        });
-
-                        ws.end(4200);
-                    } catch (e) {
-                        //
-                    }
-
+                    this.serverClosingHandler(ws);
                     this.evictSocketFromMemory(ws).then(() => {
                         wsCallback();
                     });
@@ -306,17 +291,8 @@ export class WsHandler {
         });
 
         if (this.server.closing) {
-            ws.sendJson({
-                event: 'pusher:error',
-                data: {
-                    code: 4200,
-                    message: 'Server closed. Please reconnect shortly.',
-                },
-            });
-
-            ws.end(4200);
-
-            this.evictSocketFromMemory(ws);
+            this.serverClosingHandler(ws)
+            this.evictSocketFromMemory(ws).then();
         }
     }
 
@@ -325,18 +301,8 @@ export class WsHandler {
      */
     subscribeToChannel(ws: WebSocket, message: PusherMessage): any {
         if (this.server.closing) {
-            ws.sendJson({
-                event: 'pusher:error',
-                data: {
-                    code: 4200,
-                    message: 'Server closed. Please reconnect shortly.',
-                },
-            });
-
-            ws.end(4200);
-
-            this.evictSocketFromMemory(ws);
-
+            this.serverClosingHandler(ws)
+            this.evictSocketFromMemory(ws).then();
             return;
         }
 
@@ -354,7 +320,8 @@ export class WsHandler {
                 },
             };
 
-            ws.sendJson(broadcastMessage);
+            // ws.sendJson(broadcastMessage);
+            this.errorClientHandler(ws, broadcastMessage)
 
             return;
         }
@@ -365,7 +332,7 @@ export class WsHandler {
 
                 // For auth errors, send pusher:subscription_error
                 if (authError) {
-                    return ws.sendJson({
+                    const broadcastMessage = {
                         event: 'pusher:subscription_error',
                         channel,
                         data: {
@@ -373,11 +340,13 @@ export class WsHandler {
                             error: errorMessage,
                             status: 401,
                         },
-                    });
+                    }
+                    this.errorClientHandler(ws, broadcastMessage)
+                    return //ws.sendJson();
                 }
 
                 // Otherwise, catch any non-auth related errors.
-                return ws.sendJson({
+                const broadcastMessage = {
                     event: 'pusher:subscription_error',
                     channel,
                     data: {
@@ -385,7 +354,9 @@ export class WsHandler {
                         error: errorMessage,
                         status: errorCode,
                     },
-                });
+                }
+                    this.errorClientHandler(ws, broadcastMessage)
+                return //ws.sendJson();
             }
 
             if (!ws.subscribedChannels.has(channel)) {
@@ -460,8 +431,9 @@ export class WsHandler {
                 }
             }).catch(err => {
                 Log.error(err);
+                //code: 4302,
 
-                ws.sendJson({
+                const errorMessage = {
                     event: 'pusher:error',
                     channel,
                     data: {
@@ -469,7 +441,8 @@ export class WsHandler {
                         error: 'A server error has occured.',
                         code: 4302,
                     },
-                });
+                };
+                this.errorClientHandler(ws, errorMessage)
             });
         });
     }
@@ -490,7 +463,7 @@ export class WsHandler {
                     ws.presence.delete(channel);
 
                     // Make sure to update the socket after new data was pushed in.
-                    this.server.adapter.addSocket(ws.app.id, ws);
+                    this.server.adapter.addSocket(ws.app.id, ws).then();
 
                     this.server.adapter.getChannelMembers(ws.app.id, channel, false).then(members => {
                         if (!members.has(member.user_id as string)) {
@@ -554,14 +527,16 @@ export class WsHandler {
         let { event, data, channel } = message;
 
         if (!ws.app.enableClientMessages) {
-            return ws.sendJson({
+            const errorMessage = {
                 event: 'pusher:error',
                 channel,
                 data: {
                     code: 4301,
                     message: `The app does not have client messaging enabled.`,
                 },
-            });
+            }
+            this.errorClientHandler(ws, errorMessage)
+            return //ws.sendJson();
         }
 
         // Make sure the event name length is not too big.
@@ -575,7 +550,8 @@ export class WsHandler {
                 },
             };
 
-            ws.sendJson(broadcastMessage);
+            // ws.sendJson(broadcastMessage);
+            this.errorClientHandler(ws, broadcastMessage)
 
             return;
         }
@@ -593,7 +569,8 @@ export class WsHandler {
                 },
             };
 
-            ws.sendJson(broadcastMessage);
+            // ws.sendJson(broadcastMessage);
+            this.errorClientHandler(ws, broadcastMessage)
 
             return;
         }
@@ -623,14 +600,17 @@ export class WsHandler {
                     return;
                 }
 
-                ws.sendJson({
+                const errorMessage = {
                     event: 'pusher:error',
                     channel,
                     data: {
                         code: 4301,
                         message: 'The rate limit for sending client events exceeded the quota.',
                     },
-                });
+                };
+                this.errorClientHandler(ws, errorMessage)
+            }).catch( e => {
+                //
             });
         });
     }
@@ -645,36 +625,36 @@ export class WsHandler {
 
         this.signinTokenIsValid(ws, message.data.user_data, message.data.auth).then(isValid => {
             if (!isValid) {
-                ws.sendJson({
+                const errorMessage = {
                     event: 'pusher:error',
                     data: {
                         code: 4009,
                         message: 'Connection not authorized.',
                     },
-                });
+                };
 
                 try {
+                    this.errorClientHandler(ws, errorMessage)
                     ws.end(4009);
                 } catch (e) {
                     //
                 }
-
                 return;
             }
 
             let decodedUser = JSON.parse(message.data.user_data);
 
             if (!decodedUser.id) {
-                ws.sendJson({
+                const errorMessage = {
                     event: 'pusher:error',
                     data: {
                         code: 4009,
                         message: 'The returned user data must contain the "id" field.',
                     },
-                });
+                };
 
                 try {
-                    ws.end(4009);
+                    this.errorClientHandler(ws, errorMessage)
                 } catch (e) {
                     //
                 }
@@ -830,19 +810,46 @@ export class WsHandler {
      */
     protected setUserAuthenticationTimeout(ws: WebSocket): void {
         ws.userAuthenticationTimeout = setTimeout(() => {
-            ws.sendJson({
+            const errorMessage ={
                 event: 'pusher:error',
                 data: {
                     code: 4009,
                     message: 'Connection not authorized within timeout.',
                 },
-            });
+            };
 
             try {
+                this.errorClientHandler(ws, errorMessage)
                 ws.end(4009);
             } catch (e) {
                 //
             }
         }, this.server.options.userAuthenticationTimeout);
+    }
+    protected serverClosingHandler(ws: WebSocket){
+        try {
+            Log.info('serverClosingHandler');
+            const errorMessage = {
+                event: 'pusher:error',
+                data: {
+                    code: 4200,
+                    message: 'Server is closing. Please reconnect shortly.',
+                },
+            };
+            ws.sendJson(errorMessage);
+            return ws.end(4200);
+        }catch (e) {
+            //
+        }
+    }
+
+    protected errorClientHandler(ws: WebSocket,errorMessage: object): void{
+        ws.sendJson(errorMessage);
+        this.server.appManager.saveErrorClient(
+            ws.app ? ws.app.id : null,
+            ws.user ? ws.user.id : null,
+            this.server.options.debugger.currentInstance,
+            errorMessage
+        );
     }
 }

@@ -30,4 +30,7 @@ export class BaseAppManager implements AppManagerInterface {
     saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void{
         return ;
     }
+    saveErrorClient( appId: string,user_id: string,instance:string, error:object ): void{
+        return ;
+    }
 }

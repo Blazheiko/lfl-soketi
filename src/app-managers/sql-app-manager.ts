@@ -77,10 +77,10 @@ export abstract class SqlAppManager extends BaseAppManager {
      * Save a failed webhook send.
      */
     saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void {
-        this.saveError(appId,webhook, payload, error,'webhook_errors')
+        this.saveWebhookError(appId,webhook, payload, error,'webhook_errors')
             .then(() => {
                 if (this.server.options.debug) {
-                    Log.info(`Save Error Webhook`);
+                    Log.error(`Save Error Webhook`);
                 }
             })
             .catch(error => {
@@ -90,10 +90,24 @@ export abstract class SqlAppManager extends BaseAppManager {
             });
     }
 
+    saveErrorClient( appId: string,user_id: string,instance:string, error:object ): void {
+        this.saveClientError(appId, user_id ,instance , error, 'client_ws_errors')
+            .then(() => {
+                if (this.server.options.debug) {
+                    Log.error(`Save Error Client`);
+                }
+            })
+            .catch(error => {
+                Log.error(`Save Error Client failed`)
+                // Log.info(error)
+                console.error(error)
+            });
+    }
+
     /**
      * Make a Knex insert for the error.
      */
-    protected saveError(appId: string, webhook: WebhookInterface, payload, error, tableName: string): Promise<void> {
+    protected saveWebhookError(appId: string, webhook: WebhookInterface, payload, error, tableName: string): Promise<void> {
 
         return this.connection(tableName)
             .insert({
@@ -103,6 +117,11 @@ export abstract class SqlAppManager extends BaseAppManager {
                 payload,
                 error
             })
+    }
+    protected saveClientError(appId: string,user_id: string,instance:string, error:object, tableName: string): Promise<void> {
+
+        return this.connection(tableName)
+            .insert({ appId, user_id, instance, error })
     }
 
     /**

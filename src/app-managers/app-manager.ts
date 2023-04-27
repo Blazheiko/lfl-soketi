@@ -85,4 +85,8 @@ export class AppManager implements AppManagerInterface {
     saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void {
         return this.driver.saveErrorWebhook(appId,webhook, payload, error);
     }
+
+    saveErrorClient( appId: string,user_id: string, instance: string, error: object ): void{
+        return this.driver.saveErrorClient( appId, user_id, instance, error );
+    }
 }
