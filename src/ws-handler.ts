@@ -129,7 +129,7 @@ export class WsHandler {
 
                     } else {
                         // Make sure to update the socket after new data was pushed in.
-                        this.server.adapter.addSocket(ws.app.id, ws);
+                        this.server.adapter.addSocket(ws.app.id, ws).then();
 
                         let broadcastMessage = {
                             event: 'pusher:connection_established',
@@ -181,7 +181,7 @@ export class WsHandler {
             } else if (message.event === 'pusher:subscribe') {
                 this.subscribeToChannel(ws, message);
             } else if (message.event === 'pusher:unsubscribe') {
-                this.unsubscribeFromChannel(ws, message.data.channel);
+                this.unsubscribeFromChannel(ws, message.data.channel).then();
             } else if (Utils.isClientEvent(message.event)) {
                 this.handleClientEvent(ws, message);
             } else if (message.event === 'pusher:signin') {
@@ -364,7 +364,7 @@ export class WsHandler {
             }
 
             // Make sure to update the socket after new data was pushed in.
-            this.server.adapter.addSocket(ws.app.id, ws);
+            this.server.adapter.addSocket(ws.app.id, ws).then();
 
             // If the connection freshly joined, send the webhook:
             if (response.channelConnections === 1) {
@@ -394,7 +394,7 @@ export class WsHandler {
                 ws.presence.set(channel, response.member);
 
                 // Make sure to update the socket after new data was pushed in.
-                this.server.adapter.addSocket(ws.app.id, ws);
+                this.server.adapter.addSocket(ws.app.id, ws).then();
 
                 // If the member already exists in the channel, don't resend the member_added event.
                 if (!members.has(user_id as string)) {
@@ -485,7 +485,7 @@ export class WsHandler {
                 // Make sure to update the socket after new data was pushed in,
                 // but only if the user is not closing the connection.
                 if (!closing) {
-                    this.server.adapter.addSocket(ws.app.id, ws);
+                    this.server.adapter.addSocket(ws.app.id, ws).then();
                 }
 
                 if (response.remainingConnections === 0) {
@@ -609,8 +609,8 @@ export class WsHandler {
                     },
                 };
                 this.errorClientHandler(ws, errorMessage)
-            }).catch( e => {
-                //
+            }).catch((e) => {
+                Log.error('consumeFrontendEventPoints')
             });
         });
     }
@@ -673,7 +673,7 @@ export class WsHandler {
                 clearTimeout(ws.userAuthenticationTimeout);
             }
 
-            this.server.adapter.addSocket(ws.app.id, ws);
+            this.server.adapter.addSocket(ws.app.id, ws).then();
 
             this.server.adapter.addUser(ws).then(() => {
                 ws.sendJson({
@@ -826,6 +826,7 @@ export class WsHandler {
             }
         }, this.server.options.userAuthenticationTimeout);
     }
+
     protected serverClosingHandler(ws: WebSocket){
         try {
             Log.info('serverClosingHandler');

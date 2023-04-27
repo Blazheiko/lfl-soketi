@@ -288,13 +288,13 @@ export abstract class HorizontalAdapter extends LocalAdapter {
                     RequestType.TERMINATE_USER_CONNECTIONS,
                     resolve,
                     reject,
-                    { numSub },
-                    { opts: { userId } },
+                    {numSub},
+                    {opts: {userId}},
                 );
             });
-        });
+        }).then();
 
-        this.terminateLocalUserConnections(appId, userId);
+         this.terminateLocalUserConnections(appId, userId);
     }
 
     /**
