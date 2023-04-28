@@ -81,6 +81,13 @@ export class HttpHandler {
         this.send(res, JSON.stringify({status: 'ok', config }));
     }
 
+    // async testException(res: HttpResponse,) {
+    //    const test = null;
+    //    test.test
+    //
+    //     this.send(res, JSON.stringify({status: 'ok' }));
+    // }
+
     async changeSoketiForDebug(res: HttpResponse) {
        const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
         if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');

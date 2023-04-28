@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
 import { Log } from '..';
 import { Server } from './../server';
-// import { Knex, knex } from 'knex';
+import { Knex, knex } from 'knex';
+import axios from "axios";
 
 export class Cli {
     /**
@@ -235,6 +236,7 @@ export class Cli {
                 Log.error('process uncaughtException');
                 Log.error({ err, origin });
             }
+
             handleFailure();
         });
 
@@ -242,20 +244,38 @@ export class Cli {
     }
 }
 
+// const sendException = (err, origin) => {
+//     Log.info('start sendException')
+//
+//     axios.post('https://127.0.0.1:3333/send-exception-soketi',{appId: null, user_id: null, instance: null, error: {err, origin}})
+//         .then(() => {
+//             Log.error('then saveException')
+//             handleFailure()
+//         }).catch((e) => {
+//         Log.error(e)
+//         Log.error('catch saveException')
+//         handleFailure()
+//     })
+// }
 // const saveException = (err, origin) => {
+//     Log.info('start saveException')
+//     const connection = {
+//         ...this.server.options.database.postgres,
+//     }
+//     Log.info({connection});
 //     let knexConfig = {
 //         client: 'pg',
-//         connection: { ...this.server.options.database.postgres },
-//         version: this.server.options.appManager.postgres.version,
+//         connection
 //     };
-//     // @ts-ignore
-//     const connection = knex(knexConfig);
-//     connection('client_ws_errors')
-//         .insert({ appId:'', user_id:'', instance:'', error:{ err, origin } })
-//         .then(()=>{
-//             handleFailure()
-//         }).catch(()=>{
-//             Log.error('Error saveException')
-//             handleFailure()
-//         })
+// //             // version: this.server.options.appManager.postgres.version,
+// //
+//     Log.info('2 saveException')
+//     const connectionKnex = knex(knexConfig);
+//     Log.info('3 saveException')
+//     connectionKnex('client_ws_errors')
+//         .insert({appId: null, user_id: null, instance: null, error: {err, origin}})
+//
 // }
+
+
+

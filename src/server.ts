@@ -90,7 +90,7 @@ export class Server {
             },
             postgres: {
                 table: 'apps',
-                version: '14.5',
+                version: 14.5,
             },
         },
         cache: {
