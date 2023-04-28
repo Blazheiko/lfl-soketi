@@ -65,7 +65,7 @@ export class HttpHandler {
                                                         ip: ws.ip,
                                                         userAgent: ws.userAgent,
                                                         presence: [ ...ws.presence ],
-                                                        headers: [ ...ws.headers ]
+                                                        headers: ws.headers
                                                     }]))
         const channels = [...namespace.channels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ));
         const users = [...namespace.users].map(([userId, wsIds]) => ([userId, Array.from(wsIds)] ));
