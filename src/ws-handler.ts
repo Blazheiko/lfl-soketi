@@ -265,10 +265,14 @@ export class WsHandler {
         // Log.info('handleUpgrade');
         // Log.info({req});
         const userAgent = req.getHeader('user-agent');
+        let ip = req.getHeader('HTTP_X_FORWARDED_FOR');
+        if(ip && typeof ip === 'string'){
+            ip = ip.trim()
+        }
         // Log.info({userAgent});
         res.upgrade(
             {
-                ip: ab2str(res.getRemoteAddressAsText()),
+                ip: ip ? ip : ab2str(res.getRemoteAddressAsText()),
                 ip2: ab2str(res.getProxiedRemoteAddressAsText()),
                 appKey: req.getParameter(0),
                 user: null,
