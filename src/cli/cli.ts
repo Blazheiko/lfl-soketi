@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { Log } from '..';
 import { Server } from './../server';
+// import { Knex, knex } from 'knex';
 
 export class Cli {
     /**
@@ -216,6 +217,7 @@ export class Cli {
     async start(cliArgs: any): Promise<any> {
         this.overwriteOptionsFromConfig(cliArgs ? cliArgs.config : null);
         this.overwriteOptionsFromEnv();
+        let isUncaughtException = false
 
         const handleFailure = () => {
             this.server.stop().then(() => {
@@ -227,6 +229,33 @@ export class Cli {
         process.on('SIGHUP', handleFailure);
         process.on('SIGTERM', handleFailure);
 
+        process.on('uncaughtException', (err, origin)=> {
+            if(!isUncaughtException){
+                isUncaughtException = true;
+                Log.error('process uncaughtException');
+                Log.error({ err, origin });
+            }
+            handleFailure();
+        });
+
         return this.server.start();
     }
 }
+
+// const saveException = (err, origin) => {
+//     let knexConfig = {
+//         client: 'pg',
+//         connection: { ...this.server.options.database.postgres },
+//         version: this.server.options.appManager.postgres.version,
+//     };
+//     // @ts-ignore
+//     const connection = knex(knexConfig);
+//     connection('client_ws_errors')
+//         .insert({ appId:'', user_id:'', instance:'', error:{ err, origin } })
+//         .then(()=>{
+//             handleFailure()
+//         }).catch(()=>{
+//             Log.error('Error saveException')
+//             handleFailure()
+//         })
+// }

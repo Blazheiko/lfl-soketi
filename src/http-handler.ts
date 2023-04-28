@@ -444,9 +444,9 @@ export class HttpHandler {
             if (Utils.isCachingChannel(channel)) {
                 this.server.cacheManager.set(
                     `app:${appId}:channel:${channel}:cache_miss`,
-                    JSON.stringify({ event: msg.event, data: msg.data }),
+                    JSON.stringify({event: msg.event, data: msg.data}),
                     this.server.options.channelLimits.cacheTtl,
-                );
+                ).then();
             }
         });
     }
