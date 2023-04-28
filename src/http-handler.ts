@@ -92,6 +92,7 @@ export class HttpHandler {
        const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
         if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
         console.log({res_query: res.query});
+        this.server.options.debug = (res.query.enabled == 1);
         this.server.options.debugger.enabled = (res.query.enabled == 1);
         this.server.options.debugger.currentInstance = res.query.instance;
 
