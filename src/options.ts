@@ -58,6 +58,9 @@ export interface Options {
             nodesNumber: number|null;
         };
     };
+    lifeCheck: {
+        sendStatus: string;
+    },
     appManager: {
         driver: string;
         array: {

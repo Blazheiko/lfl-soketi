@@ -94,7 +94,7 @@ export class HttpHandler {
         console.log({res_query: res.query});
         this.server.options.debug = (res.query.enabled == 1);
         this.server.options.debugger.enabled = (res.query.enabled == 1);
-        this.server.options.debugger.currentInstance = res.query.instance;
+        // this.server.options.debugger.currentInstance = res.query.instance;
 
         this.send(res, JSON.stringify({ status: 'ok' }));
     }

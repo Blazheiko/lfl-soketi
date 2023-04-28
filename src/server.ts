@@ -19,6 +19,7 @@ import { WebhookSender } from './webhook-sender';
 import { WebSocket } from 'uWebSockets.js';
 import { WsHandler } from './ws-handler';
 import {Debugger, DebuggerInterface} from "./debugger";
+import axios from "axios";
 
 const Discover = require('node-discover');
 const queryString = require('query-string');
@@ -55,6 +56,9 @@ export class Server {
                 timeout: 10_000,
                 nodesNumber: null,
             },
+        },
+        lifeCheck: {
+            sendStatus: 'https://api.telegram.org/bot1240928725:AAHYHajHgtO8_98rScOfy74J3sqFzF5DOTw/sendMessage?chat_id=-453532973&text=soketi_node_ip_ready'
         },
         appManager: {
             driver: 'postgres', //'array',//'postgres',
@@ -431,6 +435,28 @@ export class Server {
                                     if (callback) {
                                         callback(this);
                                     }
+
+                                    axios.get('https://checkip.amazonaws.com/')
+                                        .then(response =>{
+                                            const myIp = response.data.trim()
+                                            console.log(`My public IP address is: ${myIp}`)
+                                            this.options.debugger.currentInstance = myIp
+                                            if(this.options.lifeCheck && this.options.lifeCheck.sendStatus ){
+                                                axios.get(this.options.lifeCheck.sendStatus +'_'+ myIp)
+                                                    .then(res =>{
+                                                        Log.info('Send life check')
+                                                    })
+                                                    .catch(e =>{
+                                                        Log.error('Error Send life check')
+                                                        Log.error(e)
+                                                    })
+                                            }
+                                         })
+                                        .catch(e =>{
+                                            Log.error('Error get my ip')
+                                            Log.error(e)
+                                        });
+
                                 });
                             });
                         });
