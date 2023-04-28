@@ -1,8 +1,8 @@
 import { readFileSync } from 'fs';
 import { Log } from '..';
 import { Server } from './../server';
-import { Knex, knex } from 'knex';
-import axios from "axios";
+// import { Knex, knex } from 'knex';
+// import axios from "axios";
 
 export class Cli {
     /**
