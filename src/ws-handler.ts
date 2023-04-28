@@ -262,25 +262,23 @@ export class WsHandler {
      * Mutate the upgrade request.
      */
     handleUpgrade(res: HttpResponse, req: HttpRequest, context): any {
-        // Log.info('handleUpgrade');
-        // Log.info({req});
+
         const userAgent = req.getHeader('user-agent');
-        let headers = {}
-        req.forEach((key, value)=>{
-            headers[key] = value
-        })
-        let ip = req.getHeader('HTTP_X_FORWARDED_FOR');
+        // let headers = {}
+        // req.forEach((key, value)=>{
+        //     headers[key] = value
+        // })
+        let ip = req.getHeader('x-forwarded-for');
         if(ip && typeof ip === 'string'){
             ip = ip.trim()
         }
-        // Log.info({userAgent});
+
         res.upgrade(
             {
                 ip: ip ? ip : ab2str(res.getRemoteAddressAsText()),
                 ip2: ab2str(res.getProxiedRemoteAddressAsText()),
                 appKey: req.getParameter(0),
                 user: null,
-                headers,
                 userAgent
             },
             req.getHeader('sec-websocket-key'),
