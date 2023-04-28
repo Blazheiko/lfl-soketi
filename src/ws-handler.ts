@@ -265,6 +265,10 @@ export class WsHandler {
         // Log.info('handleUpgrade');
         // Log.info({req});
         const userAgent = req.getHeader('user-agent');
+        let headers = {}
+        req.forEach((key, value)=>{
+            headers[key] = value
+        })
         let ip = req.getHeader('HTTP_X_FORWARDED_FOR');
         if(ip && typeof ip === 'string'){
             ip = ip.trim()
@@ -276,6 +280,7 @@ export class WsHandler {
                 ip2: ab2str(res.getProxiedRemoteAddressAsText()),
                 appKey: req.getParameter(0),
                 user: null,
+                headers,
                 userAgent
             },
             req.getHeader('sec-websocket-key'),
