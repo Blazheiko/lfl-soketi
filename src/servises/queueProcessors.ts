@@ -9,7 +9,7 @@ import {Server} from "../server";
 const queueProcessors = (server: Server) =>{
     let delay = 1000;
     let retries = 0;
-    const maxRetries = 4;
+    const maxRetries = 7;
 
     const sendHTTP = ( appId: string,webhook: WebhookInterface , payload, server: Server, headers, resolveWebhook ) => {
         retries++
