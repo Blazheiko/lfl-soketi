@@ -16,6 +16,8 @@ export interface AppManagerInterface {
      */
     findByKey(key: string): Promise<App|null>;
 
+    getFirstAppName(): Promise<App[]|null>;
+
     /**
      * Get the app secret by ID.
      */

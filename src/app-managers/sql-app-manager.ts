@@ -104,6 +104,10 @@ export abstract class SqlAppManager extends BaseAppManager {
             });
     }
 
+    getFirstAppName(): Promise<App[]|null> {
+        return this.selectFirstAppName()
+    }
+
     /**
      * Make a Knex insert for the error.
      */
@@ -122,6 +126,16 @@ export abstract class SqlAppManager extends BaseAppManager {
 
         return this.connection(tableName)
             .insert({ appId, user_id, instance, error })
+    }
+
+    /**
+     * Select first app name for information by start soketi.
+     */
+    protected selectFirstAppName(): Promise<App[]> {
+        return this.connection(this.appsTableName())
+            .select('id','name')
+            .orderBy('id','asc')
+            .limit(1)
     }
 
     /**

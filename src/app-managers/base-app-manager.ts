@@ -16,6 +16,10 @@ export class BaseAppManager implements AppManagerInterface {
         return Promise.resolve(null);
     }
 
+    getFirstAppName(): Promise<App[]|null> {
+        return Promise.resolve(null);
+    }
+
     /**
      * Get the app secret by ID.
      */

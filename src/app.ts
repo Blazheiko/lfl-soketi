@@ -7,6 +7,7 @@ const pusherUtil = require('pusher/lib/util');
 
 export interface AppInterface {
     id: string;
+    name: string;
     key: string;
     secret: string;
     maxConnections: string|number;
@@ -54,6 +55,11 @@ export class App implements AppInterface {
      * @type {string|number}
      */
     public id: string;
+
+    /**
+     * @type {string}
+     */
+    public name: string;
 
     /**
      * @type {string|number}
@@ -214,6 +220,7 @@ export class App implements AppInterface {
     toObject(): AppInterface {
         return {
             id: this.id,
+            name: this.name,
             key: this.key,
             secret: this.secret,
             maxConnections: this.maxConnections,

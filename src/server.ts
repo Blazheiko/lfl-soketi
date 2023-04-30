@@ -79,6 +79,7 @@ export class Server {
                         maxClientEventsPerSecond: -1,
                         maxReadRequestsPerSecond: -1,
                         webhooks: [],
+                        name:'Local'
                     },
                 ],
             },
@@ -442,13 +443,27 @@ export class Server {
                                             console.log(`My public IP address is: ${myIp}`)
                                             this.options.debugger.currentInstance = myIp
                                             if(this.options.lifeCheck && this.options.lifeCheck.sendStatus ){
-                                                axios.get(this.options.lifeCheck.sendStatus +'_'+ myIp)
-                                                    .then(res =>{
-                                                        Log.info('Send life check')
+                                                this.appManager.driver.getFirstAppName()
+                                                    .then(apps =>{
+                                                        console.log({apps})
+                                                        let name = ''
+                                                        if(apps && apps.length){
+                                                            name = apps[0].name
+                                                        }
+                                                        if(name !== 'Local'){
+                                                            axios.get(`${this.options.lifeCheck.sendStatus}_${name}_${myIp}`)
+                                                                .then(res =>{
+                                                                    Log.info('Send life check')
+                                                                })
+                                                                .catch(e =>{
+                                                                    Log.error('Error Send life check')
+                                                                    Log.error(e)
+                                                                })
+                                                        }
                                                     })
-                                                    .catch(e =>{
-                                                        Log.error('Error Send life check')
-                                                        Log.error(e)
+                                                    .catch((error) => {
+                                                       Log.error('Error get first app name')
+                                                       Log.error(error);
                                                     })
                                             }
                                          })
