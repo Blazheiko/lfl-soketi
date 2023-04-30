@@ -84,18 +84,6 @@ export class Server {
                             }
                         ],
                     },
-                    // {
-                    //     id: 'app-id',
-                    //     key: 'app-key',
-                    //     secret: 'app-secret',
-                    //     maxConnections: -1,
-                    //     enableClientMessages: false,
-                    //     enabled: true,
-                    //     maxBackendEventsPerSecond: -1,
-                    //     maxClientEventsPerSecond: -1,
-                    //     maxReadRequestsPerSecond: -1,
-                    //     webhooks: [],
-                    // },
                 ],
             },
             dynamodb: {
@@ -167,8 +155,8 @@ export class Server {
                 host: '127.0.0.1',
                 port: 5432,
                 user: 'postgres',
-                password: 'password',
-                database: 'main',
+                password: 'root',
+                database: 'soketi-local',
             },
             redis: {
                 host: '127.0.0.1',
