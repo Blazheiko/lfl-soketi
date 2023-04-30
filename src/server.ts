@@ -240,8 +240,8 @@ export class Server {
         },
         shutdownGracePeriod: 3_000,
         ssl: {
-            certPath: '',
-            keyPath: '',
+            certPath: `${__dirname}/127.0.0.1.pem`,
+            keyPath: `${__dirname}/127.0.0.1-key.pem`,
             passphrase: '',
             caPath: '',
         },
@@ -251,6 +251,7 @@ export class Server {
                 enabled: false,
                 duration: 50,
             },
+            maxRetries: 6
         },
     };
 
