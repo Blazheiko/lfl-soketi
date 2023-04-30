@@ -56,7 +56,7 @@ export class Server {
             },
         },
         appManager: {
-            driver: 'array',
+            driver: 'postgres',//'array',
             cache: {
                 enabled: false,
                 ttl: -1,
@@ -64,17 +64,38 @@ export class Server {
             array: {
                 apps: [
                     {
-                        id: 'app-id',
-                        key: 'app-key',
-                        secret: 'app-secret',
+                        id: '1145602',
+                        key: '7b5dfd4b6b7705303974',
+                        secret: 'fe7e4e2b3cd616e6a85e',
                         maxConnections: -1,
-                        enableClientMessages: false,
+                        enableClientMessages: true,
                         enabled: true,
                         maxBackendEventsPerSecond: -1,
                         maxClientEventsPerSecond: -1,
                         maxReadRequestsPerSecond: -1,
-                        webhooks: [],
+                        webhooks: [
+                            {
+                                url: "http://pusher-lisner.test/api/pusher-presence-event",
+                                event_types: [
+                                    "member_added",
+                                    "member_removed"
+                                ],
+                                lambda: null
+                            }
+                        ],
                     },
+                    // {
+                    //     id: 'app-id',
+                    //     key: 'app-key',
+                    //     secret: 'app-secret',
+                    //     maxConnections: -1,
+                    //     enableClientMessages: false,
+                    //     enabled: true,
+                    //     maxBackendEventsPerSecond: -1,
+                    //     maxClientEventsPerSecond: -1,
+                    //     maxReadRequestsPerSecond: -1,
+                    //     webhooks: [],
+                    // },
                 ],
             },
             dynamodb: {
