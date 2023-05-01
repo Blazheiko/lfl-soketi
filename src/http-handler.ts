@@ -66,11 +66,21 @@ export class HttpHandler {
                                                         userAgent: ws.userAgent,
                                                         presence: [ ...ws.presence ],
                                                     }]))
+
+        this.send(res, JSON.stringify({ sockets }));
+    }
+
+    async getInfoAllChannel(res: HttpResponse,appId: string) {
+       const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
+        if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
+
+        // const localSockets = await this.server.adapter.getSockets(appId, true);
+        const namespace = await this.server.adapter.getNamespace(appId);
+
         const channels = [...namespace.channels].map(([channel, wsIds]) => ([channel, Array.from(wsIds)] ));
         const users = [...namespace.users].map(([userId, wsIds]) => ([userId, Array.from(wsIds)] ));
-        Log.info({users, channels});
 
-        this.send(res, JSON.stringify({ channels, users, sockets }));
+        this.send(res, JSON.stringify({ channels, users }));
     }
 
     async getConfig(res: HttpResponse,) {
