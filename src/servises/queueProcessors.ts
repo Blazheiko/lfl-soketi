@@ -7,12 +7,8 @@ import { createWebhookHmac, JobData } from "../webhook-sender";
 import {Server} from "../server";
 
 const queueProcessors = (server: Server) =>{
-    let delay = 1000;
-    let retries = 0;
-    const maxRetries = 7;
 
-    const sendHTTP = ( appId: string,webhook: WebhookInterface , payload, server: Server, headers, resolveWebhook ) => {
-        retries++
+    const sendHTTP = ( appId: string, webhook: WebhookInterface , payload, headers, resolveWebhook,retry: number ): void => {
         // Send HTTP POST to the target URL
         axios.post(webhook.url, payload, { headers })
             .then((res) => {
@@ -24,23 +20,27 @@ const queueProcessors = (server: Server) =>{
             })
             .catch(error => {
 
-                if (retries >= maxRetries) {
+                if (retry >= server.options.webhooks.maxRetries) {
                     if (server.options.debug) {
-                        Log.webhookSenderTitle('❎ Webhook could not be sent.');
+                        Log.webhookSenderTitle(`❎ Webhook could not be sent.${ retry } failed attempts`);
                         Log.webhookSender({ error, webhook, payload });
                     }
-                    server.appManager.saveErrorWebhook(appId, webhook, payload, error);
+
+                    // Here you can send a notification to technical support
                     resolveWebhook()
                 } else {
-                    console.log(`Request to ${webhook.url} failed, ${ retries } retrying in ${ delay } ms`);
-                    setTimeout(() => sendHTTP(appId, webhook, payload, server, headers, resolveWebhook ), delay);
-                    delay *= 2; // exponential backoff
+                    const delay = Math.pow(2, retry) * 1000; //ms exponential backoff
+                    if (server.options.debug) {
+                        Log.info(`Start repeated Request to ${webhook.url} failed, ${ retry } repeat after ${ delay } ms`);
+                    }
+
+                    setTimeout(() => sendHTTP(appId, webhook, payload, headers, resolveWebhook, ++retry), delay);
                 }
             });
-    // .then(() => resolveWebhook())
+        // .then(() => resolveWebhook())
     }
 
-    const invokeLambda = ( webhook, payload, server, headers, resolveWebhook ) => {
+    const invokeLambda = ( webhook, payload, headers, resolveWebhook ) => {
         // Invoke a Lambda function
         const params = {
             FunctionName: webhook.lambda_function,
@@ -133,9 +133,9 @@ const queueProcessors = (server: Server) =>{
                 };
 
                 if (webhook.url) {
-                    sendHTTP(app.id, webhook, payload, server, headers, resolveWebhook );
+                    sendHTTP(app.id, webhook, payload, headers, resolveWebhook, 1 );
                 } else if (webhook.lambda_function) {
-                    invokeLambda( webhook, payload, server, headers, resolveWebhook )
+                    invokeLambda( webhook, payload, headers, resolveWebhook )
                 }
             }).then(() => {
                 if (typeof done === 'function') {

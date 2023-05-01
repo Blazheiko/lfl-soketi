@@ -276,6 +276,7 @@ export class Server {
                 enabled: true,
                 duration: 1000,
             },
+            maxRetries: 6
         },
     };
 
