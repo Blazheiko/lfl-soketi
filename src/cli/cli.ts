@@ -83,7 +83,7 @@ export class Cli {
         DB_POSTGRES_USERNAME: 'database.postgres.user',
         DB_POSTGRES_PASSWORD: 'database.postgres.password',
         DB_POSTGRES_DATABASE: 'database.postgres.database',
-        DB_POSTGRES_SSL_ENABLE: 'database.postgres.ssl',
+        DB_POSTGRES_SSL: 'database.postgres.ssl',
         DB_POSTGRES_SSL_CA: 'database.postgres.ssl.ca',
         DB_POSTGRES_SSL_REJECTUNAUTHORIZED: 'database.postgres.ssl.rejectUnauthorized',
         DB_POSTGRES_SSL_SSLMODE: 'database.postgres.ssl.sslmode',

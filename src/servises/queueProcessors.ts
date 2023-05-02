@@ -71,6 +71,11 @@ const queueProcessors = (server: Server) =>{
         });
     }
 
+    const mirrorName = {
+        member_added:'member_removed',
+        member_removed: 'member_added',
+    }
+
 
     return (job, done ) => {
         let rawData: JobData = job.data;
@@ -87,9 +92,9 @@ const queueProcessors = (server: Server) =>{
 
             async.each(app.webhooks, (webhook: WebhookInterface, resolveWebhook) => {
                 const originalEventsLength = payload.events.length;
-                let filteredPayloadEvents = payload.events;
+                // let filteredPayloadEvents = payload.events;
 
-                filteredPayloadEvents = filteredPayloadEvents.filter(event => {
+                let filteredPayloadEvents = payload.events.filter(event => {
                     if (!webhook.event_types.includes(event.name)) {
                         return false;
                     }
@@ -98,7 +103,6 @@ const queueProcessors = (server: Server) =>{
                         if (webhook.filter.channel_name_starts_with && !event.channel.startsWith(webhook.filter.channel_name_starts_with)) {
                             return false;
                         }
-
                         if (webhook.filter.channel_name_ends_with && !event.channel.endsWith(webhook.filter.channel_name_ends_with)) {
                             return false;
                         }
@@ -106,6 +110,23 @@ const queueProcessors = (server: Server) =>{
 
                     return true;
                 });
+
+                // remove Mirror Event for reload page
+                filteredPayloadEvents = filteredPayloadEvents.reduce((acc, current) => {
+                    const indexMirrorEvent = acc.findIndex(item => (item && item.channel === current.channel && item.user_id === current.user_id && mirrorName[item.name] === current.name));
+                    if (indexMirrorEvent > -1) acc.splice(indexMirrorEvent,1);
+                    else acc.push(current)
+                    return acc;
+                }, []);
+
+                // remove duplicate Event for reload page
+                filteredPayloadEvents = filteredPayloadEvents.reduce((acc, current) => {
+                    const duplicateEvent = acc.find(item =>
+                        ( item && item.channel === current.channel && item.user_id === current.user_id && item.name === current.name));
+                    if (!duplicateEvent) acc.push(current);
+                    return acc;
+                }, []);
+
 
                 // If there's no webhooks to send after filtration, we should resolve early.
                 if (filteredPayloadEvents.length === 0) {

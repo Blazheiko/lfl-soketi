@@ -160,8 +160,8 @@ export class Server {
                 //     cert:'',
                 //     key:'',
                 //     rejectUnauthorized: false,
-                //     sslmode: 'verify-ca',
-                //     ca: `${__dirname}/global-bundle.pem`
+                //     sslmode: '',
+                //     ca: ''
                 // }
             },
             // postgres: {
