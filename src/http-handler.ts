@@ -65,6 +65,7 @@ export class HttpHandler {
                                                         ip: ws.ip,
                                                         userAgent: ws.userAgent,
                                                         presence: [ ...ws.presence ],
+                                                        timeStart: ws.timeStart
                                                     }]))
 
         this.send(res, JSON.stringify({ sockets }));

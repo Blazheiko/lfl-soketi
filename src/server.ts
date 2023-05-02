@@ -31,7 +31,7 @@ export class Server {
      */
     public options: Options = {
         adapter: {
-            driver: 'redis' ,//,'local'
+            driver: 'local' ,//,'local'
             redis: {
                 requestsTimeout: 5_000,
                 prefix: 'soketi',
@@ -149,21 +149,29 @@ export class Server {
                 database: 'main',
 
             },
+            postgres: {
+                host: 'soketi-stage-db-pg.card2k9ryrfq.eu-central-1.rds.amazonaws.com',
+                port: 6432,
+                user: 'postgres',
+                password: 'Rum7NatE',
+                database: 'postgres',
+                ssl: false
+                // ssl: {
+                //     cert:'',
+                //     key:'',
+                //     rejectUnauthorized: false,
+                //     sslmode: 'verify-ca',
+                //     ca: `${__dirname}/global-bundle.pem`
+                // }
+            },
             // postgres: {
-            //     host: '172.31.32.6',
+            //     host: '127.0.0.1',
             //     port: 5432,
             //     user: 'postgres',
-            //     password: 'password',
-            //     database: 'main',
+            //     password: 'root',
+            //     database: 'soketi-local',
+            //     ssl: false,
             // },
-            postgres: {
-                host: '127.0.0.1',
-                port: 5432,
-                user: 'postgres',
-                password: 'root',
-                database: 'soketi-local',
-                ssl: true,
-            },
             // redis: {
             //     host: '172.31.32.6',
             //     port: 10603,
@@ -194,7 +202,7 @@ export class Server {
             min: 0,
             max: 10,
         },
-        debug: false,
+        debug: true,
         eventLimits: {
             maxChannelsAtOnce: 100,
             maxNameLength: 200,
