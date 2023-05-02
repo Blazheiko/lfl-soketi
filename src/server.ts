@@ -147,6 +147,7 @@ export class Server {
                 user: 'root',
                 password: 'password',
                 database: 'main',
+
             },
             // postgres: {
             //     host: '172.31.32.6',
@@ -161,6 +162,7 @@ export class Server {
                 user: 'postgres',
                 password: 'root',
                 database: 'soketi-local',
+                ssl: true,
             },
             // redis: {
             //     host: '172.31.32.6',

@@ -32,6 +32,7 @@ interface KnexConnection {
     user: string;
     password: string;
     database: string;
+    ssl?: boolean;
 }
 
 export interface Options {
