@@ -2,7 +2,7 @@ import { App } from './app';
 
 import { createHmac } from 'crypto';
 import { Utils } from './utils';
-import queueProcessors from "./servises/queueProcessors";
+import queueProcessors from "./serviсes/queueProcessors";
 import { Server } from './server';
 
 export interface ClientEventData {
