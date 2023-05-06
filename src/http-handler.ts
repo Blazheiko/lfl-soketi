@@ -6,6 +6,8 @@ import { Server } from './server';
 import { Utils } from './utils';
 import { Log } from './log';
 import {RequestType} from "./adapters";
+import {setAppOptions} from "./serviсes/setAppOptions";
+import axios from "axios";
 
 const v8 = require('v8');
 
@@ -84,12 +86,31 @@ export class HttpHandler {
         this.send(res, JSON.stringify({ channels, users }));
     }
 
-    async getConfig(res: HttpResponse,) {
+    async getConfig(res: HttpResponse) {
        const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
         if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
         const config = this.server.options
 
         this.send(res, JSON.stringify({status: 'ok', config }));
+    }
+    async synchronizeConfigApps(res: HttpResponse) {
+       const response = await this.attachMiddleware(res, [this.corkMiddleware, this.corsMiddleware ]);
+        if (this.server.closing) this.serverErrorResponse(response, 'LflTest The server is closing. Choose another server. :)');
+        this.server.postgresAppManager.getAllApps()
+            .then(apps =>{
+                if(apps && apps.length){
+                    const appsInit = apps.map(app =>setAppOptions(app, this.server.options))
+                    console.log(appsInit)
+                    this.server.options.appManager.array.apps = appsInit;
+                    this.send(res, JSON.stringify({status: 'ok', appsInit }));
+                }
+                this.send(res, JSON.stringify({status: 'empty', appsInit:[] }));
+            })
+            .catch((error) => {
+                Log.error('Error synchronizeConfigApps')
+                Log.error(error);
+                this.send(res, JSON.stringify({status: 'error', appsInit:[] }));
+            })
     }
 
     // async testException(res: HttpResponse,) {

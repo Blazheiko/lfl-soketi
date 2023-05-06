@@ -467,36 +467,34 @@ export class Server {
                                         .then(response =>{
                                             const myIp = response.data.trim()
                                             console.log(`My public IP address is: ${myIp}`)
-                                            this.options.debugger.currentInstance = myIp
-                                            if(this.options.lifeCheck && this.options.lifeCheck.sendStatus ){
-                                                this.postgresAppManager.getAllApps()
-                                                    .then(apps =>{
-                                                        if(apps && apps.length){
-                                                            const appsInit = apps.map(app =>setAppOptions(app, this.options))
-                                                            console.log(appsInit)
-                                                            this.options.appManager.array.apps = appsInit;
-                                                        }
+                                            this.options.debugger.currentInstance = myIp;
+                                            this.postgresAppManager.getAllApps()
+                                                .then(apps =>{
+                                                    if(apps && apps.length){
+                                                        const appsInit = apps.map(app =>setAppOptions(app, this.options))
+                                                        console.log(appsInit)
+                                                        this.options.appManager.array.apps = appsInit;
+                                                    }
 
-                                                        let name = ''
-                                                        if(apps && apps.length){
-                                                            name = apps[0].name
-                                                        }
-                                                        // if(name !== 'Local'){
-                                                        //     axios.get(`${this.options.lifeCheck.sendStatus}_${name}_${myIp}`)
-                                                        //         .then(res =>{
-                                                        //             Log.info('Send life check')
-                                                        //         })
-                                                        //         .catch(e =>{
-                                                        //             Log.error('Error Send life check')
-                                                        //             Log.error(e)
-                                                        //         })
-                                                        // }
-                                                    })
-                                                    .catch((error) => {
-                                                       Log.error('Error get first app name')
-                                                       Log.error(error);
-                                                    })
-                                            }
+                                                    let name = ''
+                                                    if(apps && apps.length){
+                                                        name = apps[0].name
+                                                    }
+                                                    if(this.options.lifeCheck && this.options.lifeCheck.sendStatus && name !== 'Local'){
+                                                        axios.get(`${this.options.lifeCheck.sendStatus}_${name}_${myIp}`)
+                                                            .then(res =>{
+                                                                Log.info('Send life check')
+                                                            })
+                                                            .catch(e =>{
+                                                                Log.error('Error Send life check')
+                                                                Log.error(e)
+                                                            })
+                                                    }
+                                                })
+                                                .catch((error) => {
+                                                    Log.error('Error get first app name')
+                                                    Log.error(error);
+                                                })
                                          })
                                         .catch(e =>{
                                             Log.error('Error get my ip')
@@ -779,6 +777,7 @@ export class Server {
             server.get(this.url('/service/:appId/get-info-all-ws'), (res, req) => this.httpHandler.getInfoAllWS(res, req.getParameter(0)));
             server.get(this.url('/service/:appId/get-info-all-channel'), (res, req) => this.httpHandler.getInfoAllChannel(res, req.getParameter(0)));
             server.get(this.url('/service/get-config'), (res, req) => this.httpHandler.getConfig(res));
+            server.get(this.url('/service/synchronize-config-apps'), (res, req) => this.httpHandler.synchronizeConfigApps(res));
             // server.get(this.url('/service/testException'), (res, req) => this.httpHandler.testException(res));
             server.post(this.url('/service/change-soketi-for-debug'), (res, req) => {
                 res.query = queryString.parse(req.getQuery());
