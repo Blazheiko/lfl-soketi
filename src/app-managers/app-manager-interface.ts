@@ -18,6 +18,8 @@ export interface AppManagerInterface {
 
     getFirstAppName(): Promise<App[]|null>;
 
+    getAllApps(): Promise<App[]|null>;
+
     /**
      * Get the app secret by ID.
      */

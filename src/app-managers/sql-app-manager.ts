@@ -108,6 +108,10 @@ export abstract class SqlAppManager extends BaseAppManager {
         return this.selectFirstAppName()
     }
 
+    getAllApps(): Promise<App[]|null> {
+        return this.selectApps()
+    }
+
     /**
      * Make a Knex insert for the error.
      */
@@ -136,6 +140,14 @@ export abstract class SqlAppManager extends BaseAppManager {
             .select('id','name')
             .orderBy('id','asc')
             .limit(1)
+    }
+
+    /**
+     * Select all apps  by start soketi.
+     */
+    protected selectApps(): Promise<App[]> {
+        return this.connection(this.appsTableName())
+            .select('*')
     }
 
     /**

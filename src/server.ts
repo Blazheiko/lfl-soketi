@@ -1,6 +1,6 @@
 import * as dot from 'dot-wild';
 import { Adapter, AdapterInterface } from './adapters';
-import { AppManager, AppManagerInterface } from './app-managers';
+import {AppManager, AppManagerInterface, PostgresAppManager} from './app-managers';
 import { CacheManager } from './cache-managers/cache-manager';
 import { CacheManagerInterface } from './cache-managers/cache-manager-interface';
 import { HttpHandler } from './http-handler';
@@ -20,6 +20,8 @@ import { WebSocket } from 'uWebSockets.js';
 import { WsHandler } from './ws-handler';
 import {Debugger, DebuggerInterface} from "./debugger";
 import axios from "axios";
+import {App} from "./app";
+import {setAppOptions} from "./serviсes/setAppOptions";
 
 const Discover = require('node-discover');
 const queryString = require('query-string');
@@ -61,7 +63,7 @@ export class Server {
             sendStatus: 'https://api.telegram.org/bot1240928725:AAHYHajHgtO8_98rScOfy74J3sqFzF5DOTw/sendMessage?chat_id=-453532973&text=soketi_node_ip_ready'
         },
         appManager: {
-            driver: 'postgres', //'array',//'postgres',
+            driver: 'array',//'postgres',
             cache: {
                 enabled: false,
                 ttl: -1,
@@ -78,7 +80,18 @@ export class Server {
                         maxBackendEventsPerSecond: -1,
                         maxClientEventsPerSecond: -1,
                         maxReadRequestsPerSecond: -1,
-                        webhooks: [],
+                        webhooks: [{
+                            url: "https://pusher-lisner.test/api/pusher-presence-event",
+                            event_types: [ "member_added", "member_removed" ],
+                        }],
+                        maxPresenceMembersPerChannel: 1000000,
+                        maxPresenceMemberSizeInKb: 50,
+                        maxChannelNameLength: 200,
+                        maxEventChannelsAtOnce: 1000000,
+                        maxEventNameLength: 200,
+                        maxEventPayloadInKb: 100,
+                        maxEventBatchSize: 1000,
+                        enableUserAuthentication: false,
                         name:'Local'
                     },
                 ],
@@ -370,6 +383,8 @@ export class Server {
      */
     public discover: typeof Discover;
 
+    public postgresAppManager: PostgresAppManager = null;
+
     /**
      * Initialize the server.
      */
@@ -454,23 +469,28 @@ export class Server {
                                             console.log(`My public IP address is: ${myIp}`)
                                             this.options.debugger.currentInstance = myIp
                                             if(this.options.lifeCheck && this.options.lifeCheck.sendStatus ){
-                                                this.appManager.driver.getFirstAppName()
+                                                this.postgresAppManager.getAllApps()
                                                     .then(apps =>{
-                                                        console.log({apps})
+                                                        if(apps && apps.length){
+                                                            const appsInit = apps.map(app =>setAppOptions(app, this.options))
+                                                            console.log(appsInit)
+                                                            this.options.appManager.array.apps = appsInit;
+                                                        }
+
                                                         let name = ''
                                                         if(apps && apps.length){
                                                             name = apps[0].name
                                                         }
-                                                        if(name !== 'Local'){
-                                                            axios.get(`${this.options.lifeCheck.sendStatus}_${name}_${myIp}`)
-                                                                .then(res =>{
-                                                                    Log.info('Send life check')
-                                                                })
-                                                                .catch(e =>{
-                                                                    Log.error('Error Send life check')
-                                                                    Log.error(e)
-                                                                })
-                                                        }
+                                                        // if(name !== 'Local'){
+                                                        //     axios.get(`${this.options.lifeCheck.sendStatus}_${name}_${myIp}`)
+                                                        //         .then(res =>{
+                                                        //             Log.info('Send life check')
+                                                        //         })
+                                                        //         .catch(e =>{
+                                                        //             Log.error('Error Send life check')
+                                                        //             Log.error(e)
+                                                        //         })
+                                                        // }
                                                     })
                                                     .catch((error) => {
                                                        Log.error('Error get first app name')
@@ -561,7 +581,15 @@ export class Server {
             this.setQueueManager(new Queue(this)),
             this.setCacheManager(new CacheManager(this)),
             this.setWebhookSender(),
+            this.setPostgresAppManager()
         ]);
+    }
+
+    /**
+     * Set app manager.
+     */
+    setPostgresAppManager(): void {
+        this.postgresAppManager = new PostgresAppManager(this);
     }
 
     /**

@@ -43,7 +43,7 @@ export interface WebhookInterface {
         channel_name_starts_with?: string;
         channel_name_ends_with?: string;
     };
-    lambda: {
+    lambda?: {
         async?: boolean;
         region?: string;
         client_options?: Lambda.Types.ClientConfiguration,
@@ -191,12 +191,12 @@ export class App implements AppInterface {
         this.key = this.extractFromPassedKeys(initialApp, ['key', 'AppKey'], 'app-key');
         this.secret = this.extractFromPassedKeys(initialApp, ['secret', 'AppSecret'], 'app-secret');
         this.maxConnections = this.extractFromPassedKeys(initialApp, ['maxConnections', 'MaxConnections', 'max_connections'], -1);
-        this.enableClientMessages = this.extractFromPassedKeys(initialApp, ['enableClientMessages', 'EnableClientMessages', 'enable_client_messages'], false);
-        this.enabled = this.extractFromPassedKeys(initialApp, ['enabled', 'Enabled'], true);
+        this.enableClientMessages = Boolean(this.extractFromPassedKeys(initialApp, ['enableClientMessages', 'EnableClientMessages', 'enable_client_messages'], false));
+        this.enabled = Boolean(this.extractFromPassedKeys(initialApp, ['enabled', 'Enabled'], true));
         this.maxBackendEventsPerSecond = parseInt(this.extractFromPassedKeys(initialApp, ['maxBackendEventsPerSecond', 'MaxBackendEventsPerSecond', 'max_backend_events_per_sec'], -1));
         this.maxClientEventsPerSecond = parseInt(this.extractFromPassedKeys(initialApp, ['maxClientEventsPerSecond', 'MaxClientEventsPerSecond', 'max_client_events_per_sec'], -1));
         this.maxReadRequestsPerSecond = parseInt(this.extractFromPassedKeys(initialApp, ['maxReadRequestsPerSecond', 'MaxReadRequestsPerSecond', 'max_read_req_per_sec'], -1));
-        this.webhooks = this.transformPotentialJsonToArray(this.extractFromPassedKeys(initialApp, ['webhooks', 'Webhooks'], '[]'));
+        this.webhooks = this.transformPotentialJsonToArray(this.extractFromPassedKeys(initialApp, ['webhooks', 'Webhooks'], []));
         this.maxPresenceMembersPerChannel = parseInt(this.extractFromPassedKeys(initialApp, ['maxPresenceMembersPerChannel', 'MaxPresenceMembersPerChannel', 'max_presence_members_per_channel'], server.options.presence.maxMembersPerChannel));
         this.maxPresenceMemberSizeInKb = parseFloat(this.extractFromPassedKeys(initialApp, ['maxPresenceMemberSizeInKb', 'MaxPresenceMemberSizeInKb', 'max_presence_member_size_in_kb'], server.options.presence.maxMemberSizeInKb));
         this.maxChannelNameLength = parseInt(this.extractFromPassedKeys(initialApp, ['maxChannelNameLength', 'MaxChannelNameLength', 'max_channel_name_length'], server.options.channelLimits.maxNameLength));
@@ -204,14 +204,14 @@ export class App implements AppInterface {
         this.maxEventNameLength = parseInt(this.extractFromPassedKeys(initialApp, ['maxEventNameLength', 'MaxEventNameLength', 'max_event_name_length'], server.options.eventLimits.maxNameLength));
         this.maxEventPayloadInKb = parseFloat(this.extractFromPassedKeys(initialApp, ['maxEventPayloadInKb', 'MaxEventPayloadInKb', 'max_event_payload_in_kb'], server.options.eventLimits.maxPayloadInKb));
         this.maxEventBatchSize = parseInt(this.extractFromPassedKeys(initialApp, ['maxEventBatchSize', 'MaxEventBatchSize', 'max_event_batch_size'], server.options.eventLimits.maxBatchSize));
-        this.enableUserAuthentication = this.extractFromPassedKeys(initialApp, ['enableUserAuthentication', 'EnableUserAuthentication', 'enable_user_authentication'], false);
+        this.enableUserAuthentication = Boolean(this.extractFromPassedKeys(initialApp, ['enableUserAuthentication', 'EnableUserAuthentication', 'enable_user_authentication'], false));
 
-        this.hasClientEventWebhooks = this.webhooks.filter(webhook => webhook.event_types.includes(App.CLIENT_EVENT_WEBHOOK)).length > 0;
-        this.hasChannelOccupiedWebhooks = this.webhooks.filter(webhook => webhook.event_types.includes(App.CHANNEL_OCCUPIED_WEBHOOK)).length > 0;
-        this.hasChannelVacatedWebhooks = this.webhooks.filter(webhook => webhook.event_types.includes(App.CHANNEL_VACATED_WEBHOOK)).length > 0;
-        this.hasMemberAddedWebhooks = this.webhooks.filter(webhook => webhook.event_types.includes(App.MEMBER_ADDED_WEBHOOK)).length > 0;
-        this.hasMemberRemovedWebhooks = this.webhooks.filter(webhook => webhook.event_types.includes(App.MEMBER_REMOVED_WEBHOOK)).length > 0;
-        this.hasCacheMissedWebhooks = this.webhooks.filter(webhook => webhook.event_types.includes(App.CACHE_MISSED_WEBHOOK)).length > 0;
+        this.hasClientEventWebhooks = !!this.webhooks.find(webhook => webhook.event_types.includes(App.CLIENT_EVENT_WEBHOOK));
+        this.hasChannelOccupiedWebhooks = !!this.webhooks.find(webhook => webhook.event_types.includes(App.CHANNEL_OCCUPIED_WEBHOOK));
+        this.hasChannelVacatedWebhooks = !!this.webhooks.find(webhook => webhook.event_types.includes(App.CHANNEL_VACATED_WEBHOOK));
+        this.hasMemberAddedWebhooks = !!this.webhooks.find(webhook => webhook.event_types.includes(App.MEMBER_ADDED_WEBHOOK));
+        this.hasMemberRemovedWebhooks = !!this.webhooks.find(webhook => webhook.event_types.includes(App.MEMBER_REMOVED_WEBHOOK));
+        this.hasCacheMissedWebhooks = !!this.webhooks.find(webhook => webhook.event_types.includes(App.CACHE_MISSED_WEBHOOK));
     }
 
     /**
@@ -336,7 +336,7 @@ export class App implements AppInterface {
                 return potentialArray;
             }
         } catch (e) {
-            //
+            //TODO write error to DB
         }
 
         return [];

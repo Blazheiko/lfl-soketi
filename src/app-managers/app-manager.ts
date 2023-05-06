@@ -86,6 +86,10 @@ export class AppManager implements AppManagerInterface {
         return this.driver.getFirstAppName();
     }
 
+    getAllApps(): Promise<App[]|null> {
+        return this.driver.getAllApps();
+    }
+
     saveErrorWebhook(appId: string,webhook: WebhookInterface, payload, error): void {
         return this.driver.saveErrorWebhook(appId,webhook, payload, error);
     }
