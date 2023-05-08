@@ -26,7 +26,7 @@ const queueProcessors = (server: Server) =>{
                         Log.webhookSender({ error, webhook, payload });
                     }
 
-                    // server.postgresAppManager.saveErrorWebhook()
+                    server.postgresAppManager.saveErrorWebhook(appId, webhook, payload, error);
                     resolveWebhook()
                 } else {
                     const delay = Math.pow(2, retry) * 1000; //ms exponential backoff
