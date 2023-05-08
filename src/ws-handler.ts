@@ -854,7 +854,7 @@ export class WsHandler {
 
     protected errorClientHandler(ws: WebSocket,errorMessage: object): void{
         ws.sendJson(errorMessage);
-        this.server.appManager.saveErrorClient(
+        this.server.postgresAppManager.saveErrorClient(
             ws.app ? ws.app.id : null,
             ws.user ? ws.user.id : null,
             this.server.options.debugger.currentInstance,
