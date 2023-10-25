@@ -286,8 +286,8 @@ export class Server {
         },
         shutdownGracePeriod: 3_000,
         ssl: {
-            certPath: `${__dirname}/127.0.0.1.pem`,
-            keyPath: `${__dirname}/127.0.0.1-key.pem`,
+            certPath: `${__dirname}/localhost.crt`,
+            keyPath: `${__dirname}/localhost.key`,
             // certPath: '',
             // keyPath: '',
             passphrase: '',
