@@ -1,6 +1,6 @@
 import {Server} from "../server";
 import {metric} from "prom-client";
-import {Log} from "../log";
+import { Log } from "../log";
 import {WebSocket} from "uWebSockets.js";
 import {DebuggerInterface} from "./debugger-interface";
 
@@ -28,43 +28,46 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
     }
 
     markApiMessage(appId: string, incomingMessage: any, sentMessage: any): void {
-        Log.info('markApiMessage');
+        if (this.server.options.debug) Log.info('markApiMessage');
         // if( this.checkDebugMessage(sentMessage) ) {
         //     Log.info('markWsMessageReceived');
         //     console.log({ incomingMessage });
         //     this.sendMessage(appId, incomingMessage,'ApiMessage');
         // }
-        console.log({ incomingMessage });
+        if (this.server.options.debug) console.log({ incomingMessage });
         this.sendMessage(appId, { incomingMessage, sentMessage },'ApiMessage');
     }
 
     markDisconnection(ws: WebSocket): void {
-        Log.info('markDisconnection');
+        if (this.server.options.debug) Log.info('markDisconnection');
         const message = { event: 'Disconnection' }
         this.sendMessage(ws.app.id, message,'Disconnection');
     }
 
     markHorizontalAdapterRequestReceived(appId: string): void {
-        Log.info('markHorizontalAdapterRequestReceived')
+        if (this.server.options.debug) Log.info('markHorizontalAdapterRequestReceived')
     }
 
     markHorizontalAdapterRequestSent(appId: string): void {
-        Log.info('markHorizontalAdapterRequestSent')
+        if (this.server.options.debug) Log.info('markHorizontalAdapterRequestSent')
     }
 
     markHorizontalAdapterResponseReceived(appId: string): void {
-        Log.info('markHorizontalAdapterResponseReceived')
+        if (this.server.options.debug) Log.info('markHorizontalAdapterResponseReceived')
     }
 
     markNewConnection(ws: WebSocket): void {
-        Log.info('markNewConnection');
-        Log.info( `new connection app: ${ws.app.id}`);
+        if (this.server.options.debug) {
+            Log.info('markNewConnection');
+            Log.info(`new connection app: ${ws.app.id}`);
+        }
         const message = { event: 'NewConnection' }
         this.sendMessage(ws.app.id, message,'NewConnection');
     }
 
     sendMessage(appId: string, message: any, type: string){
-        Log.info('send debug Message');
+        if (this.server.options.debug) Log.info('send debug Message');
+
         let copyMessage = Object.assign({
             type: type,
             instance: this.server.options.debugger.currentInstance,
@@ -81,7 +84,7 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
             channel: this.server.options.debugger.debugChannel,
             data: copyMessage,
         };
-        console.log(msg);
+        if (this.server.options.debug) console.log(msg);
         // const appId = this.server.options.debugger.debugAppId;
 
         this.server.adapter.send(appId, msg.channel, JSON.stringify(msg), '');
@@ -89,8 +92,10 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
 
     markWsMessageReceived(appId: string, message: any): void {
         if( this.checkDebugMessage(message) ) {
-            Log.info('markWsMessageReceived');
-            console.log({ message });
+            if (this.server.options.debug) {
+                Log.info('markWsMessageReceived');
+                console.log({message});
+            }
             this.sendMessage(appId, message,'SendMessage');
         }
     }
@@ -108,19 +113,21 @@ export class WebsocketDebuggerDriver implements DebuggerInterface {
 
     markWsMessageSent(appId: string, sentMessage: any): void {
         if( this.checkDebugMessage(sentMessage) ) {
-            Log.info('markWsMessageSent')
-            console.log({ sentMessage });
+            if (this.server.options.debug) {
+                Log.info('markWsMessageSent')
+                console.log({sentMessage});
+            }
             this.sendMessage(appId, sentMessage,'WsMessageSent');
         }
 
     }
 
     trackHorizontalAdapterResolveTime(appId: string, time: number): void {
-        Log.info('trackHorizontalAdapterResolveTime')
+        if (this.server.options.debug) Log.info('trackHorizontalAdapterResolveTime')
     }
 
     trackHorizontalAdapterResolvedPromises(appId: string, resolved?: boolean): void {
-        Log.info('trackHorizontalAdapterResolvedPromises')
+        if (this.server.options.debug) Log.info('trackHorizontalAdapterResolvedPromises')
     }
 
     getDebuggerAsJson(): Promise<metric[] | void> {
