@@ -233,7 +233,7 @@ export class Server {
             process_id: process.pid || uuidv4(),
         },
         debugger: {
-            enabled: true,
+            enabled: false,
             driver: 'websocket',//'prometheus',
             debugChannel: 'debug_soketi',
             debugEvent: 'DebugSoketiEvent',
