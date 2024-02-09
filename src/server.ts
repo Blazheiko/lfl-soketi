@@ -240,7 +240,7 @@ export class Server {
             currentInstance: '',
         },
         metrics: {
-            enabled: true,
+            enabled: false,
             driver: 'prometheus',
             host: '0.0.0.0',
             prometheus: {
